@@ -1611,9 +1611,18 @@
     let currentSortColumn = "N°";
     let currentSortOrder = "asc";
     
+    // Si la API URL guardada en localStorage no coincide con la actual, limpiamos la memoria para forzar la nueva por defecto
+    const CURRENT_API_URL = "https://script.google.com/macros/s/AKfycbx1vmBIiiKz4IpSDUeJE3x46qAFAyYl8V3kCEZtF1ExX8QIqQYb-rADtPVhAwZR0nmkaQ/exec";
+    if (localStorage.getItem("api_url") && localStorage.getItem("api_url") !== CURRENT_API_URL) {
+      localStorage.removeItem("api_url");
+      localStorage.removeItem("api_key");
+    }
+
     // Configuración por Defecto
-    let API_URL = localStorage.getItem("api_url") || "https://script.google.com/macros/s/AKfycbz8M4maqu4mFpfsvPLXIpYx716mVsCTBnzEaT9WuVPI6s361OyUEuQ2eCWqFwuVty6K/exec";
+    let API_URL = localStorage.getItem("api_url") || CURRENT_API_URL;
     let API_KEY = localStorage.getItem("api_key") || "pon-tu-clave-segura-aqui";
+
+
 
 
     // Paginación
@@ -1730,16 +1739,26 @@
 
     function updateThemeBtnUI(theme) {
       const btnSpan = document.querySelector("#themeToggleBtn span");
-      const btnIcon = document.querySelector("#themeToggleBtn i");
-      if (theme === "dark") {
-        btnSpan.textContent = "Modo Claro";
-        btnIcon.setAttribute("data-lucide", "sun");
-      } else {
-        btnSpan.textContent = "Modo Oscuro";
-        btnIcon.setAttribute("data-lucide", "moon");
+      const themeToggleBtn = document.getElementById("themeToggleBtn");
+      if (!themeToggleBtn) return;
+
+      // Recrear el elemento <i> para que Lucide lo reemplace limpiamente
+      let btnIcon = themeToggleBtn.querySelector("i") || themeToggleBtn.querySelector("svg");
+      if (btnIcon) {
+        btnIcon.remove();
       }
+      
+      const newIcon = document.createElement("i");
+      newIcon.setAttribute("data-lucide", theme === "dark" ? "sun" : "moon");
+      themeToggleBtn.insertBefore(newIcon, btnSpan);
+
+      if (btnSpan) {
+        btnSpan.textContent = theme === "dark" ? "Modo Claro" : "Modo Oscuro";
+      }
+
       safeCreateIcons();
     }
+
 
     // Menú de Navegación Lateral (Tabs)
     function initMenu() {
