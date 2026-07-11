@@ -1,0 +1,2729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Seguimiento de Inspecciones de Obras</title>
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS CDN Imports -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Visualization & Mapping Libraries (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  
+  <style>
+    /* Variables del Sistema de Diseño Premium */
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-card: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --border-color: #334155;
+      --accent-color: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-glow: rgba(59, 130, 246, 0.15);
+      --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+      --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+      --success-color: #10b981;
+      --success-light: rgba(16, 185, 129, 0.15);
+      --warning-color: #f59e0b;
+      --warning-light: rgba(245, 158, 11, 0.15);
+      --danger-color: #ef4444;
+      --danger-light: rgba(239, 68, 68, 0.15);
+      --sidebar-width: 280px;
+      --header-height: 80px;
+      --glass-bg: rgba(30, 41, 59, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.05);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --border-color: #e2e8f0;
+      --accent-color: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-glow: rgba(37, 99, 235, 0.1);
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      --success-color: #059669;
+      --success-light: rgba(5, 150, 105, 0.1);
+      --warning-color: #d97706;
+      --warning-light: rgba(217, 119, 6, 0.1);
+      --danger-color: #dc2626;
+      --danger-light: rgba(220, 38, 38, 0.1);
+      --glass-bg: rgba(255, 255, 255, 0.8);
+      --glass-border: rgba(0, 0, 0, 0.05);
+    }
+
+    /* Estilos Base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Layout principal */
+    .app-container {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Fijo */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .sidebar-brand {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand-logo {
+      background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
+      color: white;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .brand-text h1 {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: linear-gradient(to right, var(--text-primary), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      padding: 24px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .menu-item button {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 14px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .menu-item button i {
+      width: 18px;
+      height: 18px;
+    }
+
+    .menu-item button:hover {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    .menu-item.active button {
+      background-color: var(--accent-glow);
+      color: var(--accent-color);
+      font-weight: 600;
+      box-shadow: inset 4px 0 0 var(--accent-color);
+      border-radius: 0 10px 10px 0;
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .theme-toggle-btn {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: var(--border-color);
+    }
+
+    /* Contenido Principal */
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 30px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: calc(100% - var(--sidebar-width));
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .header-title h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .header-title p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .connection-status {
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .status-api {
+      background-color: var(--success-light);
+      color: var(--success-color);
+    }
+
+    .status-fallback {
+      background-color: var(--warning-light);
+      color: var(--warning-color);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    .status-api .pulse-dot { background-color: var(--success-color); }
+    .status-fallback .pulse-dot { background-color: var(--warning-color); }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.5; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.5; }
+    }
+
+    .filter-select {
+      padding: 10px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+      min-width: 150px;
+      font-weight: 500;
+    }
+
+    .filter-select:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .btn-action {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-action:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .hamburger-menu {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    /* Grid de KPIs */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .kpi-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      min-height: 140px;
+    }
+
+    .kpi-card:hover {
+      box-shadow: var(--card-shadow-hover);
+      transform: translateY(-2px);
+      transition: all 0.2s ease;
+    }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .kpi-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 6px;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .kpi-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kpi-icon.blue { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .kpi-icon.purple { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+    .kpi-icon.amber { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .kpi-icon.red { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+    .kpi-sparkline {
+      height: 45px;
+      margin-top: 10px;
+      margin-bottom: -10px;
+      margin-left: -15px;
+      margin-right: -15px;
+    }
+
+    /* Grid del Dashboard */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .full-width {
+      grid-column: span 2;
+    }
+
+    .card-panel {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-panel-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .chart-box {
+      width: 100%;
+      height: 320px;
+      position: relative;
+    }
+
+    /* Pestañas de la Interfaz */
+    .tab-panel {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .tab-panel.active {
+      display: flex;
+    }
+
+    /* Mapa Interactivos */
+    .map-container-wrapper {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      height: 600px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .map-sidebar {
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .map-sidebar-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .map-sidebar-header h4 {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .map-sidebar-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .map-list-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .map-list-item:hover {
+      background-color: var(--bg-primary);
+    }
+
+    .map-list-item.active {
+      background-color: var(--accent-glow);
+      border-left: 4px solid var(--accent-color);
+    }
+
+    .map-list-item h5 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .map-list-item p {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .map-list-item .badge-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .map-box {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Banners de Alerta */
+    .alert-banner {
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .alert-banner-warning {
+      background-color: var(--warning-light);
+      border: 1px solid var(--warning-color);
+    }
+
+    .alert-banner h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .alert-banner p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-critico { background-color: var(--danger-light); color: var(--danger-color); }
+    .badge-moderado { background-color: var(--warning-light); color: var(--warning-color); }
+    .badge-leve { background-color: var(--success-light); color: var(--success-color); }
+    .badge-normal { background-color: var(--accent-glow); color: var(--accent-color); }
+
+    /* Custom Popups MapLibre */
+    .maplibregl-popup-content {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border-color);
+      border-radius: 12px !important;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+      padding: 16px !important;
+      max-width: 280px;
+    }
+
+    .maplibregl-popup-close-button {
+      color: var(--text-secondary) !important;
+      padding: 6px !important;
+      font-size: 16px !important;
+    }
+
+    .popup-content h4 {
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .popup-content p {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    /* Tabla Looker Studio */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background-color: var(--bg-secondary);
+      color: var(--text-secondary);
+      font-weight: 600;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    th:hover {
+      color: var(--text-primary);
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    tr:hover td {
+      background-color: var(--bg-secondary);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .progress-cell-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress-bar-bg {
+      width: 100px;
+      height: 6px;
+      background-color: var(--border-color);
+      border-radius: 3px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+    }
+
+    .looker-search-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-input-box {
+      position: relative;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .search-input-box i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+    }
+
+    .search-input-field {
+      width: 100%;
+      padding: 10px 16px 10px 42px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .search-input-field:focus {
+      border-color: var(--accent-color);
+    }
+
+    /* Paginación */
+    .pagination-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .pagination-info {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .pagination-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-pagination {
+      padding: 8px 12px;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .btn-pagination:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-pagination:hover:not(:disabled) {
+      background-color: var(--border-color);
+    }
+
+    /* Pestaña de Diagnósticos */
+    .diagnostics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .diagnostic-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .diagnostic-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+      border-radius: 16px 0 0 16px;
+    }
+
+    .diagnostic-card.severity-critico::before { background-color: var(--danger-color); }
+    .diagnostic-card.severity-moderado::before { background-color: var(--warning-color); }
+    .diagnostic-card.severity-leve::before { background-color: var(--success-color); }
+
+    .diagnostic-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .diagnostic-card h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .diagnostic-card p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .diagnostic-actions-box {
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .diagnostic-actions-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--accent-color);
+      margin-bottom: 6px;
+    }
+
+    .diagnostic-actions-content {
+      font-size: 12px;
+      color: var(--text-primary);
+      line-height: 1.5;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    /* Modal de Configuración */
+    .settings-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(15, 23, 42, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .settings-content {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .settings-content h3 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .settings-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .settings-form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .settings-input {
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .settings-input:focus {
+      border-color: var(--accent-color);
+    }
+
+    .settings-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .btn-secondary {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border-color);
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--bg-primary);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      transition: opacity 0.3s ease, visibility 0.3s;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid var(--border-color);
+      border-top-color: var(--accent-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsividad */
+    @media (max-width: 1280px) {
+      .diagnostics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+      }
+
+      .hamburger-menu {
+        display: block;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full-width {
+        grid-column: span 1;
+      }
+
+      .map-container-wrapper {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .map-sidebar {
+        height: 250px;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .map-box {
+        height: 350px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .diagnostics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .filter-select {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <!-- Loading Screen -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <h3 style="font-weight:600;">Cargando Dashboard de Inspecciones...</h3>
+    <p style="color:var(--text-secondary);font-size:14px;">Conectando con la base de datos de obras</p>
+  </div>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Izquierdo Fijo -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">
+          <i data-lucide="shield-alert"></i>
+        </div>
+        <div class="brand-text">
+          <h1>INSPECCIONES</h1>
+          <p>Control de Infraestructura</p>
+        </div>
+      </div>
+      
+      <ul class="sidebar-menu">
+        <li class="menu-item active" data-tab="resumen">
+          <button><i data-lucide="layout-dashboard"></i> Resumen General</button>
+        </li>
+        <li class="menu-item" data-tab="mapa">
+          <button><i data-lucide="map"></i> Distribución Geográfica</button>
+        </li>
+        <li class="menu-item" data-tab="diagnosticos">
+          <button><i data-lucide="activity"></i> Diagnósticos y Daños</button>
+        </li>
+        <li class="menu-item" data-tab="tabla">
+          <button><i data-lucide="table-2"></i> Tabla de Registros</button>
+        </li>
+      </ul>
+      
+      <div class="sidebar-footer">
+        <button class="theme-toggle-btn" id="themeToggleBtn">
+          <i data-lucide="sun"></i> <span>Modo Claro</span>
+        </button>
+        <button class="theme-toggle-btn" id="settingsBtn" style="margin-top:6px;">
+          <i data-lucide="settings"></i> Configurar API
+        </button>
+      </div>
+    </aside>
+    
+    <!-- Contenido Principal -->
+    <main class="main-content">
+      
+      <!-- Cabecera -->
+      <header class="header">
+        <div style="display:flex;align-items:center;gap:16px;">
+          <button class="hamburger-menu" id="hamburgerMenu" aria-label="Menu">
+            <i data-lucide="menu"></i>
+          </button>
+          <div class="header-title">
+            <h2 id="tabTitle">Resumen General</h2>
+            <p id="tabSubtitle">Consolidado general de inspecciones de puentes y taludes</p>
+          </div>
+        </div>
+        
+        <div class="header-controls">
+          <!-- Estado de Conexión -->
+          <div class="connection-status status-api" id="connectionStatusBadge">
+            <div class="pulse-dot"></div>
+            <span id="connectionStatusText">Conectado a la API en vivo</span>
+          </div>
+          
+          <!-- Filtro de Estado -->
+          <select class="filter-select" id="estadoFilter">
+            <option value="ALL">Todos los Estados</option>
+          </select>
+        </div>
+      </header>
+
+      <!-- Banner de Alerta de Offline / CDNs Bloqueados -->
+      <div class="alert-banner alert-banner-warning" id="cdnAlertBanner" style="display: none;">
+        <i data-lucide="alert-triangle" style="color: var(--warning-color); flex-shrink: 0; width:20px; height:20px;"></i>
+        <div style="flex: 1;">
+          <h4>Ejecución en modo local sin conexión</h4>
+          <p id="cdnAlertText">El dashboard se cargó con resiliencia offline ya que algunas librerías externas no pudieron descargarse.</p>
+        </div>
+      </div>
+      
+      <!-- KPIs -->
+      <section class="kpi-grid">
+        <!-- KPI 1 -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <div>
+              <div class="kpi-title">Total Inspecciones</div>
+              <div class="kpi-value" id="kpiTotal">0</div>
+            </div>
+            <div class="kpi-icon blue">
+              <i data-lucide="clipboard-list"></i>
+            </div>
+          </div>
+          <div class="kpi-sparkline" id="sparklineTotal"></div>
+        </div>
+        
+        <!-- KPI 2 -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <div>
+              <div class="kpi-title">Estados Afectados</div>
+              <div class="kpi-value" id="kpiEstados">0</div>
+            </div>
+            <div class="kpi-icon purple">
+              <i data-lucide="map-pin"></i>
+            </div>
+          </div>
+          <div class="kpi-sparkline" id="sparklineEstados"></div>
+        </div>
+        
+        <!-- KPI 3 -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <div>
+              <div class="kpi-title">Estructuras Críticas</div>
+              <div class="kpi-value" id="kpiCriticos">0</div>
+            </div>
+            <div class="kpi-icon amber">
+              <i data-lucide="alert-triangle"></i>
+            </div>
+          </div>
+          <div class="kpi-sparkline" id="sparklineCriticos"></div>
+        </div>
+        
+        <!-- KPI 4 -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <div>
+              <div class="kpi-title">Mapeadas en Mapa</div>
+              <div class="kpi-value" id="kpiMapeo">0%</div>
+            </div>
+            <div class="kpi-icon red">
+              <i data-lucide="navigation"></i>
+            </div>
+          </div>
+          <div class="kpi-sparkline" id="sparklineMapeo"></div>
+        </div>
+      </section>
+      
+      <!-- 1. Pestaña de Resumen -->
+      <div class="tab-panel active" id="tab-resumen">
+        <div class="dashboard-grid">
+          
+          <div class="card-panel">
+            <div class="card-panel-header">
+              <h3>Inspecciones por Estado</h3>
+            </div>
+            <div class="chart-box">
+              <canvas id="chartEstados"></canvas>
+            </div>
+          </div>
+          
+          <div class="card-panel">
+            <div class="card-panel-header">
+              <h3>Severidad de las Estructuras</h3>
+            </div>
+            <div class="chart-box">
+              <canvas id="chartSeveridad"></canvas>
+            </div>
+          </div>
+          
+          <div class="card-panel full-width">
+            <div class="card-panel-header">
+              <h3>Distribución de Tipos de Obra Evaluadas</h3>
+            </div>
+            <div id="treemapObras" style="height:320px;"></div>
+          </div>
+
+          <div class="card-panel full-width">
+            <div class="card-panel-header">
+              <h3>Tipos de Obra por Estado Federal</h3>
+            </div>
+            <div class="chart-box" style="height: 380px;">
+              <canvas id="chartStackedObras"></canvas>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- 2. Pestaña de Mapa -->
+      <div class="tab-panel" id="tab-mapa">
+        <div class="map-container-wrapper">
+          <div class="map-sidebar">
+            <div class="map-sidebar-header">
+              <h4>Inspecciones Registradas</h4>
+              <p style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Haz clic en un elemento para enfocar en el mapa</p>
+            </div>
+            <div class="map-sidebar-list" id="mapSidebarList">
+              <!-- Se poblará dinámicamente -->
+            </div>
+          </div>
+          <div class="map-box">
+            <div id="map" style="width:100%;height:100%;"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 3. Pestaña de Diagnósticos -->
+      <div class="tab-panel" id="tab-diagnosticos">
+        <div class="looker-search-bar">
+          <div class="search-input-box">
+            <i data-lucide="search"></i>
+            <input type="text" class="search-input-field" id="diagnosticsSearchInput" placeholder="Filtrar diagnósticos por descripción, vía o daños...">
+          </div>
+          <select class="filter-select" id="diagnosticsSeveridadFilter">
+            <option value="ALL">Todas las Severidades</option>
+            <option value="critico">Severidad: Crítico</option>
+            <option value="moderado">Severidad: Moderado</option>
+            <option value="leve">Severidad: Leve</option>
+          </select>
+        </div>
+        
+        <div class="diagnostics-grid" id="diagnosticsGrid">
+          <!-- Tarjetas de diagnóstico dinámicas -->
+        </div>
+      </div>
+      
+      <!-- 4. Pestaña de Tabla -->
+      <div class="tab-panel" id="tab-tabla">
+        <div class="card-panel">
+          <div class="looker-search-bar">
+            <div class="search-input-box">
+              <i data-lucide="search"></i>
+              <input type="text" class="search-input-field" id="tableSearchInput" placeholder="Buscar en la tabla por código, municipio, descripción...">
+            </div>
+            <button class="btn-action" id="btnExportCSV">
+              <i data-lucide="download"></i> Exportar CSV
+            </button>
+          </div>
+          
+          <div class="table-container">
+            <table id="inspeccionesTable">
+              <thead>
+                <tr>
+                  <th data-sort="N°">N°</th>
+                  <th data-sort="DESCRIPCION">Estructura</th>
+                  <th data-sort="TIPO DE OBRA">Tipo de Obra</th>
+                  <th data-sort="ESTADO">Estado</th>
+                  <th data-sort="MUNICIPIO">Municipio</th>
+                  <th data-sort="VIA">Vía</th>
+                  <th data-sort="SITUACION ACTUAL">Severidad / Situación</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <!-- Dinámico -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="pagination-bar">
+            <div class="pagination-info" id="paginationInfo">Mostrando 0-0 de 0 registros</div>
+            <div class="pagination-buttons">
+              <button class="btn-pagination" id="btnPrevPage"><i data-lucide="chevron-left"></i> Anterior</button>
+              <button class="btn-pagination" id="btnNextPage">Siguiente <i data-lucide="chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal de Configuración de API -->
+  <div class="settings-modal" id="settingsModal">
+    <div class="settings-content">
+      <h3>Configurar API Ortegon</h3>
+      <p style="font-size:13px;color:var(--text-secondary);">Ingresa la URL y clave de tu Google Sheet. Los cambios se guardarán localmente.</p>
+      
+      <div class="settings-form-group">
+        <label for="inputApiUrl">URL del Apps Script</label>
+        <input type="text" class="settings-input" id="inputApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+      
+      <div class="settings-form-group">
+        <label for="inputApiKey">API Key</label>
+        <input type="password" class="settings-input" id="inputApiKey" placeholder="Ingresa tu clave secreta">
+      </div>
+      
+      <div class="settings-buttons">
+        <button class="btn-secondary" id="btnCancelSettings">Cancelar</button>
+        <button class="btn-action" id="btnSaveSettings">Guardar y Recargar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DATOS DE RESPALDO (REALES - 23 REGISTROS)
+    const FALLBACK_DATA = [
+      {
+        "N°": 1,
+        "DESCRIPCION": "PÓRTICO UBICADO EN LA AUTOPISTA VALLE COCHE",
+        "TIPO DE OBRA": "COLUMNA DE CONCRETO",
+        "ESTADO": "DISTRITO CAPITAL",
+        "MUNICIPIO": "LIBERTADOR",
+        "PARROQUIA": "SAN PEDRO",
+        "VIA": "VIADUCTO VALLE COCHE",
+        "COORDENADA": "10.486804168934684, -66.88844644259137",
+        "SITUACION ACTUAL": "COLAPSO DE COLUMNA POR TERREMOTO",
+        "ACCIONES": "Demolición y colocación de placa base superior e inferior Colocación de suplemento perfil HEA400 Colocación de elementos de redundancia y GROUT de alta resistencia"
+      },
+      {
+        "N°": 2,
+        "DESCRIPCION": "PUENTE 9 DE DICIEMBRE",
+        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO",
+        "ESTADO": "DISTRITO CAPITAL",
+        "MUNICIPIO": "LIBERTADOR",
+        "PARROQUIA": "PARAISO",
+        "VIA": "PUENTE 9 DE DICIEMBRE QUE CONECTA PARAISO CON SAN MARTIN",
+        "COORDENADA": "10.48725044479518, -66.93964514986253",
+        "SITUACION ACTUAL": "Deterioro de la carpeta asfáltica con presencia de fallas y baches, desniveles, tanquilla de servicio con deterioro que representa un riesgo de seguridad al peatón",
+        "ACCIONES": "Mantenimiento correctivo, para evitar fallas .\n Rehabilitación del pavimento flexible, recuperando la cota original del mismo, los bombeos para garantizar el drenaje superficial\n Reparar el concreto alrededor de la tanquilla de servicio que esta en la acera\n Reparar tanquillas eléctricas , colocándoles las tapas\n Nivelar el pavimento en las rampas de acceso\n Evaluar condiciones de la parte inferior de la losa del puente que tiene el acero descubierto y reparar de acuerdo a los resultados, contemplando restituir el gálibo vertical"
+      },
+      {
+        "N°": 3,
+        "DESCRIPCION": "DISTRIBUIDOR AV BARALT",
+        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO, VIGAS ENCAJONADAS",
+        "ESTADO": "DISTRITO CAPITAL",
+        "MUNICIPIO": "LIBERTADOR",
+        "PARROQUIA": "SANTA TERESA",
+        "VIA": "ELEVADO QUE CONECTA QUINTQ CRESPO CON EL PARAISO",
+        "COORDENADA": "10.491963248897282, -66.92062428108532",
+        "SITUACION ACTUAL": "Daño en la losa inferior de las viga cajón del puente, por impacto vehicular, debido a la disminución del gálibo vertical, daño en juntas de dilatación, drenaje superficial",
+        "ACCIONES": "Mantenimiento correctivo.\n Determinar la acción a tomar para la corrección del daño en la losa inferior del puente afectada por los impactos vehiculares\n Verificar función del acero lateral saliente por el lateral de la viga\n Evaluar manchas por escurrimiento del agua\n Recuperar el gálibo vertical y colocar señalización de altura máxima permitida\n Corregir las juntas de dilatación.\n Recuperar el drenaje superficial del puente\n Destapar las tanquillas de drenaje\n Rehabilitar las tanquillas eléctricas\n Reparar las barandas de concreto del puente\n Realizar Demarcación y Señalización"
+      },
+      {
+        "N°": 4,
+        "DESCRIPCION": "PUENTE SANTANDER",
+        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO CON VIGAS METALICAS",
+        "ESTADO": "DISTRITO CAPITAL",
+        "MUNICIPIO": "LIBERTADOR",
+        "PARROQUIA": "PARAISO",
+        "VIA": "PUENTE QUE CONECTA EL PARAISO CON SAN MARTIN",
+        "COORDENADA": "10.491176729853755, -66.93483983626513",
+        "SITUACION ACTUAL": "Deterioro de la carpeta asfáltica, hurto de y falta de Barandas que incide en la seguridad del peatón juntas de dilatación deterioradas",
+        "ACCIONES": "Se requiere realizar un mantenimiento correctivo, para evitar fallas que impidan el uso del mismo.\n Reposición de tubería de Barandas, ya que representa un riesgo alto a la seguridad del peatón\n Rehabilitación del pavimento flexible, recuperando la cota original del mismo, los bombeos para garantizar el drenaje superficial\n Rehabilitar las juntas de dilatación del puente.\n Destapar las tanquillas de drenaje y reparar tapas\n Reponer tapas en tanquillas de servicios y limpiar tanquillas\n Reparar tanquillas eléctricas, limpiándolas, verificando la existencia de conducción eléctrica y colocándoles las tapas\n Evaluar estado de las pilas que tienen el acero descubierto para determinar la falla y la solución correspondiente \n Evaluar manchas por escurrimiento del agua\n Reponer tapas de bocas de visita\n Realizar mantenimiento preventivo a la estructura metálica del puente\n Realizar Demarcación y Señalización"
+      },
+      {
+        "N°": 1,
+        "DESCRIPCION": "FALLA DE BORDE",
+        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
+        "ESTADO": "LA GUAIRA",
+        "MUNICIPIO": "VARGAS",
+        "PARROQUIA": "CARAYACA",
+        "VIA": "CARAYACA EL JUNQUITO KM 18",
+        "COORDENADA": "",
+        "SITUACION ACTUAL": "Funcionado el paso solo para un vehículo, mientras el derrumbe no se incremente.",
+        "ACCIONES": "Realizar estudio geotécnico para el diseño optimo de las fundaciones y análisis de estabilización del talud. \n Instalación inmediata de señalizaciones para delimitar el canal de la vialidad. \n Limpieza de cunetas y desmalezamiento 100 metros en ambos sentidos, \n Desvió provisional de la escorrentía superficial para evitar que el agua baje por la falla y minimizar saturación. \n Intervención inmediata para evitar el colapso de la vialidad e incomunicación hacia carayaca por esa vía.\n Reparación del extremo colapsado del muro de gaviones"
+      },
+      {
+        "N°": 2,
+        "DESCRIPCION": "PUENTE CARABALLEDA NORTE PUENTE CARABALLEDA SUR Y PUENTE OSORIO",
+        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO CON VIGAS POSTENSADAS, PUENTE DE CONCRETO ARMADO, PUENTE DE VIGAS POSTENSADAS RESPECTIVAMENTE",
+        "ESTADO": "LA GUAIRA",
+        "MUNICIPIO": "VARGAS",
+        "PARROQUIA": "CARABALLEDA",
+        "VIA": "AV. JOSE MARIA ESPAÑA Y AV. LA COSTANERA RESPECTIVAMENTE",
+        "COORDENADA": "10.618166861170675, -66.85155843345635",
+        "SITUACION ACTUAL": "DESPLAZAMIENTO POR TABLEROS DEL PUENTE POR TERROTO, DAÑO EN JUNTAS, FRACTURA DE ACERAS , DAÑO DE PAVIMENTO. EN CASO DEL PUENTE CARABALLEDA SUR FALLA EN LA PILA CENTRAL, HECHA DE MURO CICLOPEO.",
+        "ACCIONES": "DEL PUENTE OSORIO SE HIZO REHABILITACION DE ACERAS, DEFENSAS, ASFALTADO DE RAMPA DE ENTRADA Y SALIDA, SE INSTALARON BARANDAS , LIMPIEZA DE CAUCE. PUENTE CARABALLEDA NORTE SE COLOCO BARANDAS Y ASFALTADO DE RAMPA DE ENTRADA Y SALIDA. PUENTE CARABALLEDA SUR, SE DEJO FUERA DE SERVICIO. QUEDA PENDIENTE PARA AMBOS PUENTES REVISAR LA OPCION DE LLEVAR EL TABLERO A SU EJE ORIGINAL. POR CONTRATAR PROYECTO PARA SOLUCION DE VIGA DESPLAZADA QUE QUEDO SIN SOPORTE UN AREA ."
+      },
+      {
+        "N°": 1,
+        "DESCRIPCION": "PUENTE METALICO EL ROSAL",
+        "TIPO DE OBRA": "PUENTE METALICO",
+        "ESTADO": "MIRANDA",
+        "MUNICIPIO": "CHACAO BARUTA",
+        "PARROQUIA": "PARROQUIA CHACAO Y PARROQUIA NUESTRA SEÑORA DEL ROSARIO DE BARUTA",
+        "VIA": "PUENTE QUE CONECTA LA PARROQUIA NUESTRA SEÑORA DEL ROSARIO DE BARUTA CON PARROQUIA CHACAO",
+        "COORDENADA": "10° 29′ 12″ N\n  66° 51′ 39″ W",
+        "SITUACION ACTUAL": "No se aprecian problemas estructurales, desplazamiento del borde superior del ala Sur",
+        "ACCIONES": "SE DESMANTELO PARA SU MEJOR USO A CAUSA DEL TERREMOTO"
+      },
+      {
+        "N°": 2,
+        "DESCRIPCION": "PUENTE ANDRES GALLARRAGA",
+        "TIPO DE OBRA": "PUENTE DE CONCRETO VIGAS POSTENSADAS",
+        "ESTADO": "MIRANDA",
+        "MUNICIPIO": "CHACAO BARUTA",
+        "PARROQUIA": "CHACAO",
+        "VIA": "AV. ANDRES GALARRAGA",
+        "COORDENADA": "Distribuidor Ciempies, sobre la Av Andres Galarraga\n 10° 29′ 05″ N\n 66° 51′ 27″ W",
+        "SITUACION ACTUAL": "Deterioro físico en algunas vigas con perdida significativa de la sección del concreto, producto del impacto de la carga pesada, dejando expuestos los ductos de postensado.",
+        "ACCIONES": "BAJAR LA RASANTE DE LA VIA INFERIOR PARA RESOLVER EL GALIBO VERTICAL REPARACION ESTRUCTURAL E REPARACION DEL DAÑO REALIZAR TOPOGRAFIA , DISEÑO GEOMETRICO VIAL, ESTUDIO GEOGRAFICO, ESTUDIO HIDROLOGICO Y DE LOS SERVICIOS PUBLICOS."
+      },
+      {
+        "N°": 3,
+        "DESCRIPCION": "PUENTE EL ROSARIO",
+        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO",
+        "ESTADO": "MIRANDA",
+        "MUNICIPIO": "PAZ CASTILLO",
+        "PARROQUIA": "SANTA LUCIA",
+        "VIA": "CARRETERA SOAPIRE SANTA LUCIA",
+        "COORDENADA": "Santa Lucía del Tuy, Municipio Paz Castillo\n 10°18'16.9\"N \n 66°39'28.1\"W",
+        "SITUACION ACTUAL": "En el Estribo Derecho: La migración lateral del cauce hacia este sector destruyó por completo los muros protectores. Esto dejó expuesto un porcentaje significativo del fuste del sistema de fundaciones (pilotes),",
+        "ACCIONES": "1. Fase I (Estudios): Análisis hidrológico de crecidas y estudio geomorfológico del comportamiento del cauce. \n 2. Fase II (Modelación): Simulación hidráulica bidimensional y análisis de socavación en estribos mediante metodología HEC-18. \n 3. Fase III (Diseño): Ingeniería de detalle para protección del estribo derecho, redireccionamiento del flujo y estabilización del terraplén. \n 4. Fase IV (Proyecto): Entrega de Memoria de Cálculo, planos, especificaciones y cómputos métricos."
+      },
+      {
+        "N°": 4,
+        "DESCRIPCION": "PUENTE EL PARAISO",
+        "TIPO DE OBRA": "PUENTE METALICO",
+        "ESTADO": "MIRANDA",
+        "MUNICIPIO": "PAZ CASTILLO",
+        "PARROQUIA": "SANTA LUCIA",
+        "VIA": "CARRETERA PETARE SANTA LUCIA LOCAL 9",
+        "COORDENADA": "Santa Lucía del Tuy, Municipio Paz Castillo\n 10°18'16.9\"N \n 66°39'28.1\"W",
+        "SITUACION ACTUAL": "DETERIORO GENERALIZADO DEL PUENTE PROBLEMA EN SUS PUNTOS DE APOYO",
+        "ACCIONES": "EN ESPERA DE INFORME DEL ESPECIALISTA"
+      },
+      {
+        "N°": 5,
+        "DESCRIPCION": "FALLA DE BORDE SECTOR BARRIALES GUAREMAL",
+        "TIPO DE OBRA": "ESTABILIZACION DE TALUD Y REPARACION DE VIALIDAD",
+        "ESTADO": "MIRANDA",
+        "MUNICIPIO": "GUAICAIPURO",
+        "PARROQUIA": "LOS TEQUES",
+        "VIA": "VIA PRINCIPAL DE GUAREMAL",
+        "COORDENADA": "10°18'42.6\"N 67°02'29.6\"W",
+        "SITUACION ACTUAL": "Vía fuera de servicio para tránsito vehicular por ruptura de tanquilla. Afecta a más de 5,000 habitantes.",
+        "ACCIONES": "Desmalezamiento y levantamiento topográfico detallado del talud.\n Estabilización de la ladera mediante el uso de maquinaria pesada (tipo Jumbo) para realizar un corte longitudinal preventivo a una altura aproximada de 18 metros a fin de evitar mayores movimientos de masa en períodos de lluvias.\n Reparación del muro de protección, reconstrucción del sistema de alcantarillado y colocación de defensa peatonal."
+      },
+      {
+        "N°": 6,
+        "DESCRIPCION": "FALLA DE BORDE CARRETERA VIEJA LOS TEQUES CARACAS SECTOR LA CURVA LA CAPILLA",
+        "TIPO DE OBRA": "ESTABILIZACION DE TALUD Y REPARACION DE VIALIDAD",
+        "ESTADO": "MIRANDA",
+        "MUNICIPIO": "CARRIZAL",
+        "PARROQUIA": "",
+        "VIA": "CARRETERA VIEJA LOS TEQUES CARACAS",
+        "COORDENADA": "10°22'51.0\"N 67°01'42.0\"W",
+        "SITUACION ACTUAL": "Derrumbe de cunetas y defensas por colapso de drenajes aguas abajo. Tránsito pesado constante. Riesgo latente.",
+        "ACCIONES": "Demarcación y desmalezamiento inmediato del área de peligro.\n Ejecución de levantamiento topográfico y evaluación por especialista de suelos para la estabilización integral del talud.\n Reparación de la capacidad hidráulica de la alcantarilla y posterior restitución de la carpeta asfáltica."
+      },
+      {
+        "N°": 1,
+        "DESCRIPCION": "PUENTE LAS TEJERIAS",
+        "TIPO DE OBRA": "PUENTE DE CONCRETO",
+        "ESTADO": "ARAGUA",
+        "MUNICIPIO": "SANTOS MICHELENA",
+        "PARROQUIA": "SANTOS MICHELENA",
+        "VIA": "CARRETERA PANAMERICANA TRONCAL 1",
+        "COORDENADA": "Carretera Las Tejerias 10°15'7.57\"N \n 67°11'3.12\"W",
+        "SITUACION ACTUAL": "Pérdida de vigas de apoyo por impacto. Gálibo reducido a 4.50m. Flexión severa de losa (~25cm). Requiere proyecto urgente.",
+        "ACCIONES": "1. Levantamiento topográfico de precisión para definir cotas y establecer la altura exacta de las vigas que se van a reponer\n 2.Desarrollo de Proyecto de Ingeniería Básica y de Detalle de :\n Proyecto de realineamiento de vía y Diseño del pavimento. \n Proyecto de adecuación del sistema de drenaje del punto bajo vial. \n Proyecto de reacondicionamiento del sistema estructural del puente."
+      },
+      {
+        "N°": 2,
+        "DESCRIPCION": "FALLA DE BORDE SECTOR LA ESTACIÓN",
+        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
+        "ESTADO": "ARAGUA",
+        "MUNICIPIO": "SANTOS MICHELENA",
+        "PARROQUIA": "SANTOS MICHELENA",
+        "VIA": "CARRETERA PANAMERICANA TRONCAL 1",
+        "COORDENADA": "Carretera Panamericana Sector La Estación 10°15'16.7\"N 67°10'42.3\"W",
+        "SITUACION ACTUAL": "Socavación por colapso del sistema de alcantarillado. Afectación de calzada. Riesgo de aislamiento comunitario",
+        "ACCIONES": "Limpieza, desmalezamiento y demarcación de seguridad de forma inmediata.\n Realizar levantamiento topográfico y diagnóstico estructural del alcantarillado.\n Ejecutar un estudio geotécnico de suelos para el diseño y construcción de un muro de protección, reposición de la carpeta asfáltica, cunetas y defensas viales."
+      },
+      {
+        "N°": 3,
+        "DESCRIPCION": "DESLIZAMIENTO KM 42 PANAMERICANA",
+        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
+        "ESTADO": "ARAGUA",
+        "MUNICIPIO": "SANTOS MICHELENA",
+        "PARROQUIA": "SANTOS MICHELENA",
+        "VIA": "CARRETERA PANAMERICANA TRONCAL 1",
+        "COORDENADA": "16.76318, -93.18676",
+        "SITUACION ACTUAL": "Obstaculización parcial de canal (sentido Los Teques - Tejerías) en una longitud de 20 metros. Requiere remoción.",
+        "ACCIONES": "Despliegue de maquinaria pesada para la remoción y bote inmediato del material proveniente del derrumbe.\n Una vez liberada la calzada, evaluar el estado estructural de las cunetas y realizar reparaciones menores de la carpeta asfáltica en los puntos de impacto."
+      },
+      {
+        "N°": 4,
+        "DESCRIPCION": "FALLA DE BORDE SECTOR TEJERIAS CARRETERA EL JUNQUITO COLONIA TOVAR",
+        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
+        "ESTADO": "ARAGUA",
+        "MUNICIPIO": "TOVAR",
+        "PARROQUIA": "COLONIA TOVAR",
+        "VIA": "CARRETERA EL JUNQUITO COLONIA TOVAR",
+        "COORDENADA": "Carretera El Junquito Colonia Tovar 10°24'50.0\"N 67°16'23.9\"W",
+        "SITUACION ACTUAL": "Desprendimiento parcial de calzada por socavación de alcantarillado. Impacto crítico en turismo y agricultura.",
+        "ACCIONES": "Demarcación urgente del área y desmalezamiento.\n Levantamiento topográfico integral y sondeo hidráulico del colector.\n Construcción de muro de protección aguas abajo, reposición de aceras, cunetas, defensas viales y carpeta de rodamiento."
+      },
+      {
+        "N°": 5,
+        "DESCRIPCION": "PUENTES GEMELOS EN LA AUTOPISTA REGIONAL DEL CENTRO, KM 117",
+        "TIPO DE OBRA": "PUENTES DE CONCRETO",
+        "ESTADO": "ARAGUA",
+        "MUNICIPIO": "GIRARDOT",
+        "PARROQUIA": "LOS TACARIGUAS",
+        "VIA": "Autopista Regional de Centro Km 117 Troncal 1 Maracay",
+        "COORDENADA": "10°15'11.7\"N 67°37'47.6\"W",
+        "SITUACION ACTUAL": "Grietas en apoyos de las 4 caras. Muestras de humedad y calcificaciones. Reparación necesaria DE URGENCIA",
+        "ACCIONES": "Mitigación Inmediata (Control de Riesgos)\n Eliminar raíces con herbicidas químicos (sin vibraciones).\n Instrumentar y medir la evolución de las fisuras de forma inmediata.\n Demoler el pedestal dañado y sellar las filtraciones al terraplén.\n Refuerzo Definitivo (Opciones)\n A: Inyectar resina epóxica y envolver con fibra de carbono. (Ventaja: recupera fuerza sin sumar peso).\n B: Encamisado tradicional con concreto proyectado (shotcrete).\n C: Inyectar resinas geopoliméricas para compactar y estabilizar el suelo."
+      },
+      {
+        "N°": 1,
+        "DESCRIPCION": "PUENTE LOS COLORADOS",
+        "TIPO DE OBRA": "PUENTE METALICO",
+        "ESTADO": "COJEDES",
+        "MUNICIPIO": "SAN CARLOS",
+        "PARROQUIA": "SAN CARLOS",
+        "VIA": "TRONCAL 5 CONECTA COJEDES CON PORTUGUESA",
+        "COORDENADA": "Troncal 15 Via San Carlos Portuguesa -9°21′ 00″ N , 63°19′ 00″ W",
+        "SITUACION ACTUAL": "Estructura Metálica: avanzado estado de corrosión\n Tablero y Calzada: desprendimiento del concreto y acero expuesto y daño en las juntas de dilatación.",
+        "ACCIONES": "Preparación de superficie y aplicación de pintura.\n Reposición de barandas e infraestructura de vigas deterioradas Reposición de la señalización vial y del sistema de iluminacion Reposición del concreto junto al acero del tablero en la parte inferior del puente Mantenimiento a las juntas de dilatación. \n Reposición de tramos dañados, colocación de barandas de seguridad y reforzamiento general de la pasarela peatonal adosada.\n Mantener un seguimiento continuo a la evolución del terreno socavado y, de manera preventiva, realizar un estudio del comportamiento del río Tirgua"
+      },
+      {
+        "N°": 2,
+        "DESCRIPCION": "FALLA DE BORDE SECTOR LOS COLORADOS",
+        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
+        "ESTADO": "COJEDES",
+        "MUNICIPIO": "SAN CARLOS",
+        "PARROQUIA": "SAN CARLOS",
+        "VIA": "TRONCAL 5 CONECTA COJEDES CON PORTUGUESA",
+        "COORDENADA": "Troncal 15 Via San Carlos Portuguesa 9° 39′ 34,56″N , 68° 36′ 17,56″ W",
+        "SITUACION ACTUAL": "Derrumbe del talud en tres (3) partes y sistema de drenaje obstruido",
+        "ACCIONES": "Reparación del talud afectado, con 320 m3 de material de relleno tipo granzón .\n Construcción de sistema de estabilización de taludes con gaviones escalonados a lo largo de la falla.\n Limpieza y mantenimiento del sistema general de drenaje."
+      },
+      {
+        "N°": 1,
+        "DESCRIPCION": "PUENTE MAÑONGO",
+        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO",
+        "ESTADO": "CARABOBO",
+        "MUNICIPIO": "VALENCIA",
+        "PARROQUIA": "SAN JOSE",
+        "VIA": "AUTOPISTA VALENCIA PUERTO CABELLO. TRONCAL 1",
+        "COORDENADA": "Autopista Valencia Puerto Cabello 10°14′ 02,42″ N , 68°00′ 05,44″ W",
+        "SITUACION ACTUAL": "Desplazamiento de la junta de dilatación.\n Agrietamiento de pavimento",
+        "ACCIONES": "Planificar y ejecutar la reparación integral de las juntas de dilatación en el sentido Puerto Cabello - Valencia, interviniendo de forma prioritaria los tramos correspondientes a la entrada y salida del puente."
+      },
+      {
+        "N°": 2,
+        "DESCRIPCION": "PUENTE RETOBO",
+        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO",
+        "ESTADO": "CARABOBO",
+        "MUNICIPIO": "NAGUA NAGUA",
+        "PARROQUIA": "NAGUA NAGUA",
+        "VIA": "AUTOPISTA VALENCIA PUERTO CABELLO. TRONCAL 1",
+        "COORDENADA": "Autopista Valencia Puerto Cabello 10° 16′ 38,40″ N , 68° 01′ 18,66″ W",
+        "SITUACION ACTUAL": "Socavación parcial de baja magnitud por la acción del río en las bases del puente.",
+        "ACCIONES": "Reparar las socavaciones presentes generadas por la acción del río en los elementos de fundación.\n Para mayor seguridad gestionar la evaluación técnica de las estructuras con la participación directa de un especialista en el área de ingeniería de puentes."
+      },
+      {
+        "N°": 3,
+        "DESCRIPCION": "FALLA DE BORDE CURVA BELLORIN BEJUMA",
+        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
+        "ESTADO": "CARABOBO",
+        "MUNICIPIO": "VALENCIA",
+        "PARROQUIA": "BEJUMA",
+        "VIA": "VIA PANAMERICANA VALENCIA BEJUMA",
+        "COORDENADA": "Sector Curva Bellorín Bejuma 10° 10′ 04,99″N , 68° 13′ 07,07″ W",
+        "SITUACION ACTUAL": "Hundimiento de la calzada Derrumbe del talud de soporte.\n Cierre parcial de la vía.",
+        "ACCIONES": "Reparación del talud afectado a través de la evaluación de un especialista.\n Reasfaltado total.\n Iluminación y señalización integral."
+      },
+      {
+        "N°": 4,
+        "DESCRIPCION": "DISTRIBUIDOR REDOMA PALMA SOLA MORON",
+        "TIPO DE OBRA": "RESTITUCION DE VIA POR DETERIORO DE CARPETA DE RODAMIENTO CON GRIETAS HORIZONTALES Y DESPLAZAMIENTO VERTICAL DEL TALUD TRAMO REDOMA MORÓN VIA TUCACAS",
+        "ESTADO": "CARABOBO",
+        "MUNICIPIO": "JUAN JOSE MORA",
+        "PARROQUIA": "MORON",
+        "VIA": "VIA CARABOBO FALCON TRONCAL 1",
+        "COORDENADA": "Carretera Morón-Coro (Troncal 3), sector Redoma de Morón, límite entre los estados Carabobo y Falcón, Venezuela 10° 30' 12,67\" N 68° 11' 15,32\" O",
+        "SITUACION ACTUAL": "Agrietamiento en el pavimento.\n Pérdida de estabilidad y soporte del talud.\n Cierre de la vía",
+        "ACCIONES": "Perforaciones Calicatas, SPT, estudio topográfico y evaluación y levantamiento del sistema de drenaje para su rehabilitación. Contratación de una empresa con maquinaria y equipos adecuados para realizar los trabajos correspondientes"
+      }
+    ];
+
+    // Variables de Estado del Dashboard
+    let appData = [];
+    let filteredData = [];
+    let currentTab = "resumen";
+    let activeCharts = {};
+    let activeApexCharts = {};
+    let mapInstance = null;
+    let mapMarkers = [];
+    let currentSortColumn = "N°";
+    let currentSortOrder = "asc";
+    
+    // Configuración por Defecto
+    let API_URL = localStorage.getItem("api_url") || "https://script.google.com/macros/s/AKfycbz-chtZ2mQ6mhuEj39YOumZAaGZRttB_7xI84df61D77h1B9XH8-bBHYICtSNVoD3PUXw/exec";
+    let API_KEY = localStorage.getItem("api_key") || "pon-tu-clave-segura-aqui";
+
+    // Paginación
+    let currentPage = 1;
+    const rowsPerPage = 10;
+
+    // Inicialización al cargar la página
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        safeCreateIcons();
+        initTheme();
+        initMenu();
+        initFilters();
+        initSettings();
+        checkCDNs();
+        await loadDashboardData();
+      } catch (err) {
+        console.error("Error durante la inicialización del dashboard:", err);
+      } finally {
+        hideLoadingScreen();
+      }
+    });
+
+    // Validar si los CDNs cargaron
+    function checkCDNs() {
+      const missingLibs = [];
+      if (typeof lucide === 'undefined') missingLibs.push("Iconos (Lucide)");
+      if (typeof Chart === 'undefined') missingLibs.push("Gráficos (Chart.js)");
+      if (typeof ApexCharts === 'undefined') missingLibs.push("Gráficos avanzados (ApexCharts)");
+      if (typeof maplibregl === 'undefined') missingLibs.push("Mapas (MapLibre GL)");
+      
+      if (missingLibs.length > 0) {
+        const banner = document.getElementById("cdnAlertBanner");
+        if (banner) {
+          banner.style.display = "flex";
+          document.getElementById("cdnAlertText").textContent = 
+            `El dashboard se está ejecutando de forma local/offline. No se pudieron cargar las siguientes librerías de internet: ${missingLibs.join(", ")}. Algunas funciones visuales estarán limitadas.`;
+        }
+      }
+    }
+
+    function safeCreateIcons() {
+      if (typeof lucide !== 'undefined') {
+        try {
+          lucide.createIcons();
+        } catch (e) {
+          console.warn("Error creando iconos de Lucide:", e);
+        }
+      }
+    }
+
+    function hideLoadingScreen() {
+      const overlay = document.getElementById("loadingOverlay");
+      if (overlay) {
+        overlay.style.opacity = "0";
+        setTimeout(() => {
+          overlay.style.visibility = "hidden";
+        }, 300);
+      }
+    }
+
+    // Buscador flexible de cabeceras en filas de Google Sheets (insensible a acentos, mayúsculas y espacios)
+    function getRowValueByCleanKey(row, keyToFind) {
+      if (!row) return undefined;
+      const cleanKey = keyToFind.toLowerCase()
+                               .normalize("NFD")
+                               .replace(/[\u0300-\u036f]/g, "")
+                               .replace(/[^a-z0-9]/g, "");
+      
+      for (let k in row) {
+        const cleanK = k.toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/[^a-z0-9]/g, "");
+        if (cleanK === cleanKey) {
+          return row[k];
+        }
+      }
+      return undefined;
+    }
+
+    // Normalizar fila de datos con llaves uniformes
+    function normalizeRow(item) {
+      return {
+        "N°": getRowValueByCleanKey(item, "N°") || getRowValueByCleanKey(item, "num") || getRowValueByCleanKey(item, "numero") || "",
+        "DESCRIPCION": getRowValueByCleanKey(item, "descripcion") || getRowValueByCleanKey(item, "descripción") || "",
+        "TIPO DE OBRA": getRowValueByCleanKey(item, "tipo de obra") || getRowValueByCleanKey(item, "tipodeobra") || "",
+        "ESTADO": getRowValueByCleanKey(item, "estado") || "",
+        "MUNICIPIO": getRowValueByCleanKey(item, "municipio") || "",
+        "PARROQUIA": getRowValueByCleanKey(item, "parroquia") || "",
+        "VIA": getRowValueByCleanKey(item, "via") || getRowValueByCleanKey(item, "vía") || "",
+        "COORDENADA": getRowValueByCleanKey(item, "coordenada") || getRowValueByCleanKey(item, "coordenadas") || "",
+        "SITUACION ACTUAL": getRowValueByCleanKey(item, "situacion actual") || getRowValueByCleanKey(item, "situación actual") || "",
+        "ACCIONES": getRowValueByCleanKey(item, "acciones") || ""
+      };
+    }
+
+    // Tema Claro / Oscuro
+    function initTheme() {
+      const themeToggleBtn = document.getElementById("themeToggleBtn");
+      const savedTheme = localStorage.getItem("theme") || "dark";
+      document.body.setAttribute("data-theme", savedTheme);
+      updateThemeBtnUI(savedTheme);
+
+      themeToggleBtn.addEventListener("click", () => {
+        const currentTheme = document.body.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        document.body.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        updateThemeBtnUI(newTheme);
+        renderCharts();
+      });
+    }
+
+    function updateThemeBtnUI(theme) {
+      const btnSpan = document.querySelector("#themeToggleBtn span");
+      const btnIcon = document.querySelector("#themeToggleBtn i");
+      if (theme === "dark") {
+        btnSpan.textContent = "Modo Claro";
+        btnIcon.setAttribute("data-lucide", "sun");
+      } else {
+        btnSpan.textContent = "Modo Oscuro";
+        btnIcon.setAttribute("data-lucide", "moon");
+      }
+      safeCreateIcons();
+    }
+
+    // Menú de Navegación Lateral (Tabs)
+    function initMenu() {
+      const menuItems = document.querySelectorAll(".menu-item");
+      const tabTitle = document.getElementById("tabTitle");
+      const tabSubtitle = document.getElementById("tabSubtitle");
+      const sidebar = document.getElementById("sidebar");
+      const hamburgerMenu = document.getElementById("hamburgerMenu");
+
+      const subtitles = {
+        resumen: "Consolidado general de inspecciones de puentes y taludes",
+        mapa: "Ubicación geográfica interactiva de estructuras e informes",
+        diagnosticos: "Detalle pormenorizado de patologías estructurales y acciones",
+        tabla: "Explorador de datos tabular estilo Looker Studio con filtros"
+      };
+
+      menuItems.forEach(item => {
+        item.addEventListener("click", () => {
+          menuItems.forEach(i => i.classList.remove("active"));
+          item.classList.add("active");
+          
+          currentTab = item.getAttribute("data-tab");
+          tabTitle.textContent = item.querySelector("button").textContent.trim();
+          tabSubtitle.textContent = subtitles[currentTab] || "";
+
+          // Mostrar/Ocultar paneles
+          document.querySelectorAll(".tab-panel").forEach(panel => {
+            if (panel.id === `tab-${currentTab}`) {
+              panel.classList.add("active");
+            } else {
+              panel.classList.remove("active");
+            }
+          });
+
+          // Inicializar o redimensionar mapa al abrir pestaña
+          if (currentTab === "mapa") {
+            setTimeout(initMaplibreMap, 100);
+          }
+
+          // Renderizar gráficos si se vuelve a resumen (ajustar responsividad)
+          if (currentTab === "resumen") {
+            renderCharts();
+          }
+
+          // Cerrar menú móvil
+          sidebar.classList.remove("open");
+        });
+      });
+
+      if (hamburgerMenu) {
+        hamburgerMenu.addEventListener("click", (e) => {
+          e.stopPropagation();
+          sidebar.classList.toggle("open");
+        });
+      }
+
+      document.addEventListener("click", (e) => {
+        if (window.innerWidth <= 1024 && sidebar && !sidebar.contains(e.target) && hamburgerMenu && !hamburgerMenu.contains(e.target)) {
+          sidebar.classList.remove("open");
+        }
+      });
+    }
+
+    // Modal de Configuración
+    function initSettings() {
+      const settingsBtn = document.getElementById("settingsBtn");
+      const settingsModal = document.getElementById("settingsModal");
+      const btnCancelSettings = document.getElementById("btnCancelSettings");
+      const btnSaveSettings = document.getElementById("btnSaveSettings");
+      const inputApiUrl = document.getElementById("inputApiUrl");
+      const inputApiKey = document.getElementById("inputApiKey");
+
+      if (settingsBtn) {
+        settingsBtn.addEventListener("click", () => {
+          inputApiUrl.value = API_URL;
+          inputApiKey.value = API_KEY;
+          settingsModal.style.display = "flex";
+        });
+      }
+
+      if (btnCancelSettings) {
+        btnCancelSettings.addEventListener("click", () => {
+          settingsModal.style.display = "none";
+        });
+      }
+
+      if (btnSaveSettings) {
+        btnSaveSettings.addEventListener("click", async () => {
+          const urlVal = inputApiUrl.value.trim();
+          const keyVal = inputApiKey.value.trim();
+          if (!urlVal || !keyVal) {
+            alert("Por favor llena ambos campos.");
+            return;
+          }
+
+          localStorage.setItem("api_url", urlVal);
+          localStorage.setItem("api_key", keyVal);
+          API_URL = urlVal;
+          API_KEY = keyVal;
+
+          settingsModal.style.display = "none";
+          const overlay = document.getElementById("loadingOverlay");
+          if (overlay) {
+            overlay.style.visibility = "visible";
+            overlay.style.opacity = "1";
+          }
+          
+          await loadDashboardData();
+          hideLoadingScreen();
+        });
+      }
+    }
+
+    // Conversión robusta de coordenadas DMS (Grados, Minutos, Segundos) a Decimales
+    function parseDMSCoordinate(coordStr) {
+      if (!coordStr) return null;
+      coordStr = coordStr.replace(/[\r\n]/g, " ").trim();
+
+      // Intento 1: Decimal simple (ej. "10.4868, -66.8884")
+      const decRegex = /(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/;
+      const decMatch = coordStr.match(decRegex);
+      if (decMatch) {
+        return {
+          lat: parseFloat(decMatch[1]),
+          lng: parseFloat(decMatch[2])
+        };
+      }
+
+      // Helper para convertir DMS en decimal
+      function convertDMSToDecimal(dmsValStr) {
+        dmsValStr = dmsValStr.replace(/′|’|`/g, "'").replace(/″|”|''/g, '"').replace(/,/g, '.');
+        
+        const regex = /(\d+)\s*°\s*(\d+)\s*'\s*(\d+(?:\.\d+)?)\s*"\s*([NSEOWOó])/i;
+        const match = dmsValStr.match(regex);
+        if (!match) return null;
+
+        const deg = parseFloat(match[1]);
+        const min = parseFloat(match[2]);
+        const sec = parseFloat(match[3]);
+        const dir = match[4].toUpperCase();
+
+        let decimal = deg + (min / 60) + (sec / 3600);
+        if (dir === 'S' || dir === 'W' || dir === 'O') {
+          decimal = -decimal;
+        }
+        return decimal;
+      }
+
+      const cleanStr = coordStr.replace(/′|’|`/g, "'").replace(/″|”|''/g, '"').replace(/,/g, '.');
+      const dmsBlockRegex = /(\d+\s*°\s*\d+\s*'\s*[\d.]+\s*"\s*[NSEOWOó])/gi;
+      const matches = cleanStr.match(dmsBlockRegex);
+
+      if (matches && matches.length >= 2) {
+        const lat = convertDMSToDecimal(matches[0]);
+        const lng = convertDMSToDecimal(matches[1]);
+        if (lat !== null && lng !== null) {
+          return { lat, lng };
+        }
+      }
+
+      return null;
+    }
+
+    // Clasificación Semántica de Severidad
+    function getSeverityClass(situacion) {
+      if (!situacion) return { label: "Leve / En Observación", class: "leve", color: "#10b981", val: 1 };
+      const text = situacion.toLowerCase();
+      
+      const criticalKeywords = [
+        "colapso", "terremoto", "urgente", "fuera de servicio", "mitigación inmediata", 
+        "desprendimiento parcial", "flexión severa", "pérdida de vigas", "socavación por colapso", 
+        "aislamiento", "alto riesgo", "grave", "crítico", "inmediato", "derrumbe"
+      ];
+
+      const moderateKeywords = [
+        "deterioro", "daño", "socavación", "grietas", "fisuras", "humedad", 
+        "agrietamiento", "desplazamiento", "falla de borde", "hundimiento", "borde superior", "corrosión"
+      ];
+
+      for (let key of criticalKeywords) {
+        if (text.includes(key)) {
+          return { label: "Crítico", class: "critico", color: "#ef4444", val: 3 };
+        }
+      }
+
+      for (let key of moderateKeywords) {
+        if (text.includes(key)) {
+          return { label: "Moderado", class: "moderado", color: "#f59e0b", val: 2 };
+        }
+      }
+
+      return { label: "Leve / En Observación", class: "leve", color: "#10b981", val: 1 };
+    }
+
+    // Carga de Datos (API o Fallback)
+    async function loadDashboardData() {
+      const badge = document.getElementById("connectionStatusBadge");
+      const badgeText = document.getElementById("connectionStatusText");
+
+      try {
+        console.log("Intentando conectar con la API Ortegon...");
+        const url = `${API_URL}?key=${API_KEY}&action=data&sheet=INSPECCIONES`;
+        
+        let res;
+        if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+          res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+        } else {
+          res = await fetch(url);
+        }
+        
+        const json = await res.json();
+        
+        if (json.success && json.data && json.data.length > 0) {
+          console.log("Datos de la API descargados con éxito.");
+          appData = cleanRawData(json.data);
+          
+          if (badge) {
+            badge.className = "connection-status status-api";
+            badgeText.textContent = "Conectado a la API en vivo";
+          }
+        } else {
+          throw new Error("Respuesta inválida de la API");
+        }
+      } catch (error) {
+        console.warn("Fallo de conexión o API inactiva. Usando respaldo local.", error);
+        appData = cleanRawData(FALLBACK_DATA);
+        
+        if (badge) {
+          badge.className = "connection-status status-fallback";
+          badgeText.textContent = "Usando datos locales de respaldo";
+        }
+      }
+
+      // Procesar datos
+      processExtendedFields();
+      populateFilterOptions();
+      
+      // Aplicar filtros e inicializar UI
+      applyFilters();
+    }
+
+    // Limpieza y normalización de Filas
+    function cleanRawData(data) {
+      return data
+        .map(normalizeRow)
+        .filter(item => item["DESCRIPCION"] && String(item["DESCRIPCION"]).trim() !== "");
+    }
+
+    // Campos procesados en memoria (Coordenadas y Severidad)
+    function processExtendedFields() {
+      appData.forEach(item => {
+        item.coordsParsed = parseDMSCoordinate(item["COORDENADA"]);
+        item.severityInfo = getSeverityClass(item["SITUACION ACTUAL"]);
+      });
+    }
+
+    // Poblar Selector de Opciones de Filtro
+    function populateFilterOptions() {
+      const estadoFilter = document.getElementById("estadoFilter");
+      if (!estadoFilter) return;
+      
+      const estados = [...new Set(appData.map(item => item["ESTADO"]))].sort();
+      
+      estadoFilter.innerHTML = '<option value="ALL">Todos los Estados</option>';
+      estados.forEach(est => {
+        if (est && String(est).trim() !== "") {
+          const opt = document.createElement("option");
+          opt.value = est;
+          opt.textContent = est;
+          estadoFilter.appendChild(opt);
+        }
+      });
+    }
+
+    // Inicializar listeners de filtros
+    function initFilters() {
+      const estadoFilter = document.getElementById("estadoFilter");
+      if (estadoFilter) {
+        estadoFilter.addEventListener("change", () => {
+          applyFilters();
+        });
+      }
+
+      // Búsqueda en la Tabla
+      const tableSearch = document.getElementById("tableSearchInput");
+      if (tableSearch) {
+        tableSearch.addEventListener("input", () => {
+          currentPage = 1;
+          applyFilters();
+        });
+      }
+
+      // Búsqueda en Diagnósticos
+      const diagSearch = document.getElementById("diagnosticsSearchInput");
+      if (diagSearch) {
+        diagSearch.addEventListener("input", () => {
+          applyFilters();
+        });
+      }
+
+      const diagSeverity = document.getElementById("diagnosticsSeveridadFilter");
+      if (diagSeverity) {
+        diagSeverity.addEventListener("change", () => {
+          applyFilters();
+        });
+      }
+
+      // Exportar CSV
+      const btnExport = document.getElementById("btnExportCSV");
+      if (btnExport) {
+        btnExport.addEventListener("click", () => {
+          exportToCSV();
+        });
+      }
+
+      // Ordenar Columnas Tabla
+      const headers = document.querySelectorAll("#inspeccionesTable th");
+      headers.forEach(h => {
+        h.addEventListener("click", () => {
+          const col = h.getAttribute("data-sort");
+          if (col) {
+            if (currentSortColumn === col) {
+              currentSortOrder = currentSortOrder === "asc" ? "desc" : "asc";
+            } else {
+              currentSortColumn = col;
+              currentSortOrder = "asc";
+            }
+            applyFilters();
+          }
+        });
+      });
+
+      // Botones de Paginación
+      const btnPrev = document.getElementById("btnPrevPage");
+      if (btnPrev) {
+        btnPrev.addEventListener("click", () => {
+          if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+          }
+        });
+      }
+
+      const btnNext = document.getElementById("btnNextPage");
+      if (btnNext) {
+        btnNext.addEventListener("click", () => {
+          const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+          if (currentPage < totalPages) {
+            currentPage++;
+            renderTable();
+          }
+        });
+      }
+    }
+
+    // Filtrar y Ordenar Datos
+    function applyFilters() {
+      const estadoFilter = document.getElementById("estadoFilter");
+      const selectedEstado = estadoFilter ? estadoFilter.value : "ALL";
+      
+      const tableSearch = document.getElementById("tableSearchInput");
+      const searchTableVal = tableSearch ? tableSearch.value.toLowerCase() : "";
+      
+      const diagSearch = document.getElementById("diagnosticsSearchInput");
+      const searchDiagVal = diagSearch ? diagSearch.value.toLowerCase() : "";
+      
+      const diagSeverity = document.getElementById("diagnosticsSeveridadFilter");
+      const selectedSeverity = diagSeverity ? diagSeverity.value : "ALL";
+
+      filteredData = appData.filter(item => {
+        if (selectedEstado !== "ALL" && item["ESTADO"] !== selectedEstado) return false;
+
+        if (currentTab === "tabla") {
+          if (searchTableVal !== "") {
+            const matchesSearch = 
+              (item["DESCRIPCION"] && item["DESCRIPCION"].toLowerCase().includes(searchTableVal)) ||
+              (item["TIPO DE OBRA"] && item["TIPO DE OBRA"].toLowerCase().includes(searchTableVal)) ||
+              (item["MUNICIPIO"] && item["MUNICIPIO"].toLowerCase().includes(searchTableVal)) ||
+              (item["VIA"] && item["VIA"].toLowerCase().includes(searchTableVal)) ||
+              (item["SITUACION ACTUAL"] && item["SITUACION ACTUAL"].toLowerCase().includes(searchTableVal));
+            if (!matchesSearch) return false;
+          }
+        }
+
+        if (currentTab === "diagnosticos") {
+          if (selectedSeverity !== "ALL" && item.severityInfo.class !== selectedSeverity) return false;
+          if (searchDiagVal !== "") {
+            const matchesSearch = 
+              (item["DESCRIPCION"] && item["DESCRIPCION"].toLowerCase().includes(searchDiagVal)) ||
+              (item["VIA"] && item["VIA"].toLowerCase().includes(searchDiagVal)) ||
+              (item["SITUACION ACTUAL"] && item["SITUACION ACTUAL"].toLowerCase().includes(searchDiagVal)) ||
+              (item["ACCIONES"] && item["ACCIONES"].toLowerCase().includes(searchDiagVal));
+            if (!matchesSearch) return false;
+          }
+        }
+
+        return true;
+      });
+
+      sortData();
+
+      // Renderizar UI
+      updateKPIs();
+      renderCharts();
+      renderMapAndSidebar();
+      renderDiagnosticsGrid();
+      renderTable();
+    }
+
+    function sortData() {
+      filteredData.sort((a, b) => {
+        let valA = a[currentSortColumn];
+        let valB = b[currentSortColumn];
+
+        if (currentSortColumn === "N°") {
+          valA = parseInt(valA) || 0;
+          valB = parseInt(valB) || 0;
+        } else {
+          valA = String(valA || "").toLowerCase();
+          valB = String(valB || "").toLowerCase();
+        }
+
+        if (valA < valB) return currentSortOrder === "asc" ? -1 : 1;
+        if (valA > valB) return currentSortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // Actualizar KPIs
+    function updateKPIs() {
+      const total = filteredData.length;
+      const uniqueStates = new Set(filteredData.map(item => item["ESTADO"])).size;
+      const criticalCount = filteredData.filter(item => item.severityInfo.class === "critico").length;
+      
+      const mappedCount = filteredData.filter(item => item.coordsParsed !== null).length;
+      const mappingRate = total > 0 ? Math.round((mappedCount / total) * 100) : 0;
+
+      const kpiTotalEl = document.getElementById("kpiTotal");
+      if (kpiTotalEl) kpiTotalEl.textContent = total;
+      
+      const kpiEstadosEl = document.getElementById("kpiEstados");
+      if (kpiEstadosEl) kpiEstadosEl.textContent = uniqueStates;
+      
+      const kpiCriticosEl = document.getElementById("kpiCriticos");
+      if (kpiCriticosEl) kpiCriticosEl.textContent = criticalCount;
+      
+      const kpiMapeoEl = document.getElementById("kpiMapeo");
+      if (kpiMapeoEl) kpiMapeoEl.textContent = `${mappingRate}%`;
+
+      // Sparklines (ApexCharts)
+      if (typeof ApexCharts !== 'undefined') {
+        const statesDistribution = getStatesDistribution(filteredData);
+        const stateCounts = statesDistribution.map(s => s.count);
+        
+        while (stateCounts.length < 5) {
+          stateCounts.unshift(0);
+        }
+
+        renderSparkline("sparklineTotal", stateCounts, "#3b82f6");
+        renderSparkline("sparklineEstados", [1, uniqueStates, uniqueStates + 1, uniqueStates, uniqueStates], "#8b5cf6");
+        renderSparkline("sparklineCriticos", filteredData.map(item => item.severityInfo.val), "#f59e0b");
+        
+        const mappedTrend = filteredData.map(item => item.coordsParsed ? 100 : 0);
+        renderSparkline("sparklineMapeo", mappedTrend.slice(0, 10), "#ef4444");
+      }
+    }
+
+    function renderSparkline(id, data, color) {
+      if (typeof ApexCharts === 'undefined') return;
+      
+      if (activeApexCharts[id]) {
+        try {
+          activeApexCharts[id].destroy();
+        } catch (e) {
+          console.warn("Error destruyendo sparkline:", e);
+        }
+      }
+
+      const options = {
+        series: [{ data: data }],
+        chart: {
+          type: 'line',
+          width: '100%',
+          height: 45,
+          sparkline: { enabled: true }
+        },
+        stroke: {
+          curve: 'smooth',
+          width: 3
+        },
+        colors: [color],
+        tooltip: { enabled: false }
+      };
+
+      const container = document.getElementById(id);
+      if (container) {
+        try {
+          activeApexCharts[id] = new ApexCharts(container, options);
+          activeApexCharts[id].render();
+        } catch (e) {
+          console.warn("Error renderizando sparkline:", e);
+        }
+      }
+    }
+
+    function getStatesDistribution(data) {
+      const counts = {};
+      data.forEach(item => {
+        counts[item["ESTADO"]] = (counts[item["ESTADO"]] || 0) + 1;
+      });
+      return Object.keys(counts).map(key => ({
+        state: key,
+        count: counts[key]
+      })).sort((a,b) => b.count - a.count);
+    }
+
+    // Renderizar Gráficos
+    function renderCharts() {
+      const isDark = document.body.getAttribute("data-theme") !== "light";
+      const textColor = isDark ? "#94a3b8" : "#64748b";
+      const gridColor = isDark ? "#334155" : "#e2e8f0";
+
+      if (activeCharts.estados) activeCharts.estados.destroy();
+      if (activeCharts.severidad) activeCharts.severidad.destroy();
+      if (activeCharts.stacked) activeCharts.stacked.destroy();
+      if (activeApexCharts.treemap) activeApexCharts.treemap.destroy();
+
+      // --- Chart 1: Cantidad de Inspecciones por Estado (Horizontal Bar) ---
+      const statesDist = getStatesDistribution(filteredData);
+      const canvas1 = document.getElementById("chartEstados");
+      if (canvas1 && typeof Chart !== 'undefined') {
+        const ctx1 = canvas1.getContext("2d");
+        activeCharts.estados = new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels: statesDist.map(s => s.state),
+            datasets: [{
+              label: 'Inspecciones',
+              data: statesDist.map(s => s.count),
+              backgroundColor: '#3b82f6',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: gridColor }, ticks: { color: textColor } },
+              y: { grid: { display: false }, ticks: { color: textColor } }
+            }
+          }
+        });
+      }
+
+      // --- Chart 2: Severidad de las Estructuras (Donut) ---
+      const severityCounts = { critico: 0, moderado: 0, leve: 0 };
+      filteredData.forEach(item => {
+        severityCounts[item.severityInfo.class]++;
+      });
+
+      const canvas2 = document.getElementById("chartSeveridad");
+      if (canvas2 && typeof Chart !== 'undefined') {
+        const ctx2 = canvas2.getContext("2d");
+        activeCharts.severidad = new Chart(ctx2, {
+          type: 'doughnut',
+          data: {
+            labels: ['Crítico', 'Moderado', 'Leve / Estable'],
+            datasets: [{
+              data: [severityCounts.critico, severityCounts.moderado, severityCounts.leve],
+              backgroundColor: ['#ef4444', '#f59e0b', '#10b981'],
+              borderColor: isDark ? '#1e293b' : '#ffffff',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: { color: textColor, font: { family: 'Inter' } }
+              }
+            },
+            cutout: '60%'
+          }
+        });
+      }
+
+      // --- Chart 3: Distribución de Obras (ApexCharts Treemap) ---
+      const obraCounts = {};
+      filteredData.forEach(item => {
+        obraCounts[item["TIPO DE OBRA"]] = (obraCounts[item["TIPO DE OBRA"]] || 0) + 1;
+      });
+
+      const seriesData = Object.keys(obraCounts).map(key => ({
+        x: key,
+        y: obraCounts[key]
+      }));
+
+      const treemapOptions = {
+        series: [{ data: seriesData }],
+        chart: {
+          height: 320,
+          type: 'treemap',
+          background: 'transparent',
+          toolbar: { show: false }
+        },
+        colors: ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899', '#06b6d4'],
+        theme: { mode: isDark ? 'dark' : 'light' },
+        plotOptions: {
+          treemap: {
+            enableShades: true,
+            shadeIntensity: 0.5
+          }
+        }
+      };
+
+      const treemapContainer = document.getElementById("treemapObras");
+      if (treemapContainer && typeof ApexCharts !== 'undefined') {
+        activeApexCharts.treemap = new ApexCharts(treemapContainer, treemapOptions);
+        activeApexCharts.treemap.render();
+      }
+
+      // --- Chart 4: Tipos de Obra por Estado (Stacked Bar Chart) ---
+      const allObras = [...new Set(filteredData.map(item => item["TIPO DE OBRA"]))];
+      const allStates = statesDist.map(s => s.state);
+
+      const datasets = allObras.map((obra, idx) => {
+        const colorPalette = [
+          '#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', 
+          '#06b6d4', '#ec4899', '#14b8a6', '#f97316', '#6366f1'
+        ];
+        const dataForStates = allStates.map(state => {
+          return filteredData.filter(item => item["ESTADO"] === state && item["TIPO DE OBRA"] === obra).length;
+        });
+
+        return {
+          label: obra,
+          data: dataForStates,
+          backgroundColor: colorPalette[idx % colorPalette.length],
+          stack: 'Stack 0'
+        };
+      });
+
+      const canvas4 = document.getElementById("chartStackedObras");
+      if (canvas4 && typeof Chart !== 'undefined') {
+        const ctx4 = canvas4.getContext("2d");
+        activeCharts.stacked = new Chart(ctx4, {
+          type: 'bar',
+          data: {
+            labels: allStates,
+            datasets: datasets
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { color: textColor, boxWidth: 12, font: { size: 11 } }
+              }
+            },
+            scales: {
+              x: { stacked: true, grid: { display: false }, ticks: { color: textColor } },
+              y: { stacked: true, grid: { color: gridColor }, ticks: { color: textColor } }
+            }
+          }
+        });
+      }
+    }
+
+    // Inicializar y Renderizar Mapa (MapLibre GL JS)
+    function initMaplibreMap() {
+      if (typeof maplibregl === 'undefined') {
+        console.warn("MapLibre GL JS no está cargado.");
+        const mapContainer = document.getElementById("map");
+        if (mapContainer) {
+          mapContainer.innerHTML = `
+            <div style="padding:40px; text-align:center; color:var(--text-secondary); display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:12px;">
+              <i data-lucide="map-off" style="width:48px; height:48px; color:var(--danger-color);"></i>
+              <h4>El mapa no pudo cargarse</h4>
+              <p style="font-size:12px; max-width:300px; line-height:1.4;">Por favor verifica tu conexión a internet o si los servicios CDN están bloqueados en tu navegador.</p>
+            </div>
+          `;
+          safeCreateIcons();
+        }
+        return;
+      }
+      
+      if (mapInstance) return;
+
+      const initialCenter = [-66.9036, 10.4806];
+
+      try {
+        mapInstance = new maplibregl.Map({
+          container: 'map',
+          style: 'https://tiles.openfreemap.org/styles/positron',
+          center: initialCenter,
+          zoom: 7
+        });
+
+        mapInstance.addControl(new maplibregl.NavigationControl());
+
+        mapInstance.on('load', () => {
+          console.log("Mapa cargado con éxito.");
+          renderMapMarkers();
+        });
+
+      } catch (err) {
+        console.error("Error al inicializar el mapa:", err);
+      }
+    }
+
+    function renderMapAndSidebar() {
+      if (currentTab !== "mapa") return;
+      
+      initMaplibreMap();
+      renderMapMarkers();
+      renderMapSidebar();
+    }
+
+    function renderMapMarkers() {
+      if (typeof maplibregl === 'undefined' || !mapInstance) return;
+
+      mapMarkers.forEach(m => m.remove());
+      mapMarkers = [];
+
+      const coordinatesToFit = [];
+
+      filteredData.forEach(item => {
+        if (item.coordsParsed) {
+          const { lat, lng } = item.coordsParsed;
+
+          const popupHTML = `
+            <div class="popup-content">
+              <span class="badge badge-${item.severityInfo.class}" style="margin-bottom:8px;">${item.severityInfo.label}</span>
+              <h4>${item["DESCRIPCION"]}</h4>
+              <p><strong>Tipo:</strong> ${item["TIPO DE OBRA"]}</p>
+              <p><strong>Vía:</strong> ${item["VIA"]}</p>
+              <p style="margin-top:4px;"><strong>Situación:</strong> ${item["SITUACION ACTUAL"].substring(0, 100)}...</p>
+            </div>
+          `;
+
+          const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupHTML);
+
+          const marker = new maplibregl.Marker({ color: item.severityInfo.color })
+            .setLngLat([lng, lat])
+            .setPopup(popup)
+            .addTo(mapInstance);
+
+          mapMarkers.push(marker);
+          coordinatesToFit.push([lng, lat]);
+        }
+      });
+
+      if (coordinatesToFit.length > 0 && mapInstance) {
+        const bounds = new maplibregl.LngLatBounds();
+        coordinatesToFit.forEach(coord => bounds.extend(coord));
+        
+        mapInstance.fitBounds(bounds, {
+          padding: 60,
+          maxZoom: 14
+        });
+      }
+    }
+
+    // Renderizar barra lateral del mapa
+    function renderMapSidebar() {
+      const sidebarList = document.getElementById("mapSidebarList");
+      if (!sidebarList) return;
+      
+      sidebarList.innerHTML = "";
+
+      const mappedItems = filteredData.filter(item => item.coordsParsed !== null);
+
+      if (mappedItems.length === 0) {
+        sidebarList.innerHTML = `
+          <div style="padding:20px;text-align:center;color:var(--text-secondary);font-size:13px;">
+            No hay registros con coordenadas válidas para mostrar en esta zona.
+          </div>
+        `;
+        return;
+      }
+
+      mappedItems.forEach(item => {
+        const li = document.createElement("div");
+        li.className = "map-list-item";
+        
+        li.innerHTML = `
+          <h5>${item["DESCRIPCION"]}</h5>
+          <p><strong>Vía:</strong> ${item["VIA"] || "-"}</p>
+          <div class="badge-row">
+            <span class="badge badge-${item.severityInfo.class}">${item.severityInfo.label}</span>
+            <span class="badge badge-normal">${item["ESTADO"]}</span>
+          </div>
+        `;
+
+        li.addEventListener("click", () => {
+          document.querySelectorAll(".map-list-item").forEach(el => el.classList.remove("active"));
+          li.classList.add("active");
+
+          if (mapInstance && item.coordsParsed) {
+            const { lat, lng } = item.coordsParsed;
+            mapInstance.flyTo({
+              center: [lng, lat],
+              zoom: 14,
+              speed: 1.5,
+              curve: 1
+            });
+          }
+        });
+
+        sidebarList.appendChild(li);
+      });
+    }
+
+    // Renderizar Diagnósticos y Daños
+    function renderDiagnosticsGrid() {
+      if (currentTab !== "diagnosticos") return;
+
+      const grid = document.getElementById("diagnosticsGrid");
+      if (!grid) return;
+      
+      grid.innerHTML = "";
+
+      if (filteredData.length === 0) {
+        grid.innerHTML = `
+          <div class="card-panel full-width" style="text-align:center;padding:40px;color:var(--text-secondary);">
+            <i data-lucide="info" style="width:48px;height:48px;margin:0 auto 12px;color:var(--accent-color);"></i>
+            <h4>No se encontraron diagnósticos que coincidan con la búsqueda</h4>
+          </div>
+        `;
+        safeCreateIcons();
+        return;
+      }
+
+      filteredData.forEach(item => {
+        const card = document.createElement("div");
+        card.className = `diagnostic-card severity-${item.severityInfo.class}`;
+
+        card.innerHTML = `
+          <div class="diagnostic-card-header">
+            <h4>${item["DESCRIPCION"]}</h4>
+            <span class="badge badge-${item.severityInfo.class}">${item.severityInfo.label}</span>
+          </div>
+          <p style="font-size:11px;color:var(--accent-color);font-weight:600;margin-top:-4px;">
+            <i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:2px;"></i>
+            ${item["ESTADO"]} / ${item["MUNICIPIO"]} / ${item["VIA"]}
+          </p>
+          <div style="margin-top:6px;">
+            <p style="font-weight:600;color:var(--text-primary);margin-bottom:2px;">SITUACIÓN ACTUAL / DAÑO:</p>
+            <p style="font-style:italic;">"${item["SITUACION ACTUAL"] || 'Sin descripción de fallas.'}"</p>
+          </div>
+          <div class="diagnostic-actions-box">
+            <div class="diagnostic-actions-title">Acciones Correctivas Propuestas</div>
+            <div class="diagnostic-actions-content">${item["ACCIONES"] ? item["ACCIONES"].replace(/\n/g, '<br>') : 'Pendiente de evaluación técnica.'}</div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      safeCreateIcons();
+    }
+
+    // Renderizar Tabla
+    function renderTable() {
+      if (currentTab !== "tabla") return;
+
+      const tbody = document.getElementById("tableBody");
+      if (!tbody) return;
+      
+      tbody.innerHTML = "";
+
+      const totalItems = filteredData.length;
+      
+      const totalPages = Math.ceil(totalItems / rowsPerPage);
+      if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+
+      const startIndex = (currentPage - 1) * rowsPerPage;
+      const endIndex = Math.min(startIndex + rowsPerPage, totalItems);
+
+      const btnPrev = document.getElementById("btnPrevPage");
+      if (btnPrev) btnPrev.disabled = currentPage === 1;
+      
+      const btnNext = document.getElementById("btnNextPage");
+      if (btnNext) btnNext.disabled = currentPage === totalPages || totalPages === 0;
+
+      const paginationInfo = document.getElementById("paginationInfo");
+      if (paginationInfo) {
+        paginationInfo.textContent = 
+          totalItems > 0 
+            ? `Mostrando ${startIndex + 1}-${endIndex} de ${totalItems} registros` 
+            : "Mostrando 0-0 de 0 registros";
+      }
+
+      const pageData = filteredData.slice(startIndex, endIndex);
+
+      if (pageData.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align:center;color:var(--text-secondary);padding:30px;">
+              No se encontraron inspecciones
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      pageData.forEach(item => {
+        const tr = document.createElement("tr");
+
+        let progressWidth = 33;
+        let progressColor = "var(--success-color)";
+        if (item.severityInfo.class === "moderado") {
+          progressWidth = 66;
+          progressColor = "var(--warning-color)";
+        } else if (item.severityInfo.class === "critico") {
+          progressWidth = 100;
+          progressColor = "var(--danger-color)";
+        }
+
+        tr.innerHTML = `
+          <td style="font-weight:600;">${item["N°"]}</td>
+          <td style="font-weight:600;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item["DESCRIPCION"]}">${item["DESCRIPCION"]}</td>
+          <td>${item["TIPO DE OBRA"]}</td>
+          <td><span class="badge badge-normal">${item["ESTADO"]}</span></td>
+          <td>${item["MUNICIPIO"]}</td>
+          <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item["VIA"]}">${item["VIA"]}</td>
+          <td>
+            <div class="progress-cell-wrapper">
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" style="width:${progressWidth}%;background-color:${progressColor};"></div>
+              </div>
+              <span class="badge badge-${item.severityInfo.class}">${item.severityInfo.label}</span>
+            </div>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Exportación a CSV
+    function exportToCSV() {
+      if (filteredData.length === 0) return;
+
+      const headers = ["N°", "DESCRIPCION", "TIPO DE OBRA", "ESTADO", "MUNICIPIO", "PARROQUIA", "VIA", "COORDENADA", "SITUACION ACTUAL", "ACCIONES", "SEVERIDAD"];
+      const csvRows = [];
+      csvRows.push(headers.join(","));
+
+      filteredData.forEach(item => {
+        const values = [
+          item["N°"],
+          escapeCSV(item["DESCRIPCION"]),
+          escapeCSV(item["TIPO DE OBRA"]),
+          escapeCSV(item["ESTADO"]),
+          escapeCSV(item["MUNICIPIO"]),
+          escapeCSV(item["PARROQUIA"]),
+          escapeCSV(item["VIA"]),
+          escapeCSV(item["COORDENADA"]),
+          escapeCSV(item["SITUACION ACTUAL"]),
+          escapeCSV(item["ACCIONES"]),
+          item.severityInfo.label
+        ];
+        csvRows.push(values.join(","));
+      });
+
+      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + csvRows.join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `reporte_inspecciones_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function escapeCSV(text) {
+      if (!text) return '""';
+      let clean = String(text).replace(/"/g, '""').replace(/[\r\n]+/g, ' ');
+      return `"${clean}"`;
+    }
+  </script>
+</body>
+</html>
