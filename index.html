@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ortegon Dashboard — Control de Obras</title>
+  <title>INSPECCIONES DE OBRAS — Control de Obras</title>
   
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1017,7 +1017,7 @@
   <!-- Pantalla de Carga -->
   <div id="loadingScreen" class="loading-screen">
     <div class="spinner"></div>
-    <div id="loadingText" class="loading-text">Conectando con la API de Ortegon...</div>
+    <div id="loadingText" class="loading-text">Conectando con la API de Inspecciones de Obras...</div>
   </div>
 
   <!-- Backdrop del Sidebar para móviles -->
@@ -1032,7 +1032,7 @@
           <i data-lucide="bar-chart-3"></i>
         </div>
         <div class="brand-title-container">
-          <h1 class="brand-title">Ortegon API</h1>
+          <h1 class="brand-title" style="font-size: 0.95rem; font-weight: 800; letter-spacing: -0.2px;">INSPECCIONES DE OBRAS API</h1>
           <span style="font-size: 0.725rem; color: var(--sidebar-text)">Dashboard Edition</span>
         </div>
       </div>
@@ -1070,9 +1070,8 @@
         </li>
       </nav>
 
-      <div class="sidebar-footer">
-        <span class="author">Desarrollado con 💙 por</span>
-        <a href="https://fredyortegon.com" target="_blank">fredyortegon.com</a>
+      <div class="sidebar-footer" style="padding: 16px; border-top: 1px solid var(--border-color); text-align: center;">
+        <span class="author" style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); display: block; line-height: 1.4;">DESARROLLADO POR INSPECCIONES DE OBRAS</span>
       </div>
     </aside>
 
@@ -1476,8 +1475,8 @@
     const DEFAULT_API_KEY = "pon-tu-clave-segura-aqui";
 
     // Variables de Estado de la Aplicación
-    let apiURL = localStorage.getItem("ORTEGON_API_URL") || DEFAULT_API_URL;
-    let apiKey = localStorage.getItem("ORTEGON_API_KEY") || DEFAULT_API_KEY;
+    let apiURL = localStorage.getItem("INSPECCION_API_URL") || DEFAULT_API_URL;
+    let apiKey = localStorage.getItem("INSPECCION_API_KEY") || DEFAULT_API_KEY;
 
     let dashboardData = {
       obras: [],
@@ -1992,8 +1991,8 @@
       const inputUrl = document.getElementById("apiUrlInput").value.trim();
       const inputKey = document.getElementById("apiKeyInput").value.trim();
 
-      localStorage.setItem("ORTEGON_API_URL", inputUrl);
-      localStorage.setItem("ORTEGON_API_KEY", inputKey);
+      localStorage.setItem("INSPECCION_API_URL", inputUrl);
+      localStorage.setItem("INSPECCION_API_KEY", inputKey);
 
       apiURL = inputUrl;
       apiKey = inputKey;
@@ -2007,8 +2006,8 @@
     // Restaurar opciones por defecto
     function restoreDefaultApiSettings() {
       if (confirm("¿Estás seguro de restaurar las credenciales por defecto?")) {
-        localStorage.removeItem("ORTEGON_API_URL");
-        localStorage.removeItem("ORTEGON_API_KEY");
+        localStorage.removeItem("INSPECCION_API_URL");
+        localStorage.removeItem("INSPECCION_API_KEY");
 
         apiURL = DEFAULT_API_URL;
         apiKey = DEFAULT_API_KEY;
