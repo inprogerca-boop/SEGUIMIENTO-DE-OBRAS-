@@ -1007,6 +1007,113 @@
     .sidebar-backdrop.active {
       display: block;
     }
+
+    /* Obras Grid & Cards */
+    .obras-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .obra-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      transition: all 0.2s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .obra-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+      border-color: var(--primary-light);
+    }
+
+    .obra-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .obra-card-id {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      text-transform: uppercase;
+      background-color: var(--primary-light);
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+    }
+
+    .obra-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      height: 2.8em;
+    }
+
+    .obra-card-details {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 16px 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .obra-card-detail-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .obra-card-detail-item i {
+      width: 14px;
+      height: 14px;
+      color: var(--primary-color);
+    }
+
+    .obra-card-footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 14px;
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .obra-card-progress {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 55%;
+    }
+
+    .obra-card-progress-text {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .obra-card-actions {
+      width: 40%;
+      text-align: right;
+    }
   </style>
 
   <!-- ApexCharts CDN -->
@@ -1038,7 +1145,13 @@
       </div>
 
       <nav class="sidebar-menu">
-        <li class="menu-item active" id="menu-overview">
+        <li class="menu-item active" id="menu-obras">
+          <button onclick="switchView('obras')">
+            <i data-lucide="list"></i>
+            <span>Lista de Obras</span>
+          </button>
+        </li>
+        <li class="menu-item" id="menu-overview">
           <button onclick="switchView('overview')">
             <i data-lucide="layout-dashboard"></i>
             <span>Vista General</span>
@@ -1088,6 +1201,13 @@
             <h2 id="currentViewTitle" class="header-title">Vista General</h2>
             <span id="lastUpdated" class="header-subtitle">Actualizando datos...</span>
           </div>
+          <!-- Selector rápido de Obra (se oculta en la lista de obras) -->
+          <div id="headerObraSelectorContainer" style="margin-left: 20px; display: none; align-items: center; gap: 8px;">
+            <span style="font-size: 0.725rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">Obra:</span>
+            <select id="headerObraSelect" onchange="selectObra(this.value)" style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 12px; font-size: 0.825rem; font-weight: 600; background-color: var(--card-bg); color: var(--text-main); max-width: 250px; outline: none; cursor: pointer;">
+              <!-- Se autogenera con JS -->
+            </select>
+          </div>
         </div>
         
         <div class="header-right">
@@ -1122,8 +1242,62 @@
           </div>
         </div>
 
+        <!-- 0. LISTA DE OBRAS (OBRAS LIST) -->
+        <section id="panel-obras" class="view-panel active">
+          <!-- Controles de Filtros y Ordenación -->
+          <div class="filters-card card" style="margin-bottom: 24px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+              <div class="info-item">
+                <span class="info-label">Buscar Obra</span>
+                <input type="text" id="searchObraInput" class="form-select" placeholder="Escribe nombre de obra..." oninput="filterObrasList()" style="width: 100%; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 0.9rem; background-color: var(--card-bg); color: var(--text-main);">
+              </div>
+              <div class="info-item">
+                <span class="info-label">Filtrar por Estado</span>
+                <select id="filterEstado" class="form-select" onchange="filterObrasList()" style="width: 100%; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px; font-size: 0.9rem; background-color: var(--card-bg); color: var(--text-main);">
+                  <option value="">Todos los Estados</option>
+                </select>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Filtrar por Municipio</span>
+                <select id="filterMunicipio" class="form-select" onchange="filterObrasList()" style="width: 100%; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px; font-size: 0.9rem; background-color: var(--card-bg); color: var(--text-main);">
+                  <option value="">Todos los Municipios</option>
+                </select>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Filtrar por Parroquia</span>
+                <select id="filterParroquia" class="form-select" onchange="filterObrasList()" style="width: 100%; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px; font-size: 0.9rem; background-color: var(--card-bg); color: var(--text-main);">
+                  <option value="">Todas las Parroquias</option>
+                </select>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Ordenar por</span>
+                <select id="sortObras" class="form-select" onchange="filterObrasList()" style="width: 100%; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px; font-size: 0.9rem; background-color: var(--card-bg); color: var(--text-main);">
+                  <option value="nombre">Nombre de Obra</option>
+                  <option value="empresa">Empresa Contratista</option>
+                  <option value="estado">Estado</option>
+                  <option value="municipio">Municipio</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mapa General de Obras -->
+          <div class="card" style="margin-bottom: 24px; padding: 16px;">
+            <h3 class="card-title" style="margin-bottom: 12px; border-bottom: none; padding-bottom: 0;">
+              <i data-lucide="map-pin" style="color: var(--primary-color)"></i>
+              Mapa General de Obras
+            </h3>
+            <div id="generalMap" style="width: 100%; height: 350px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background-color: #f1f3f4;"></div>
+          </div>
+
+          <!-- Lista de Obras en Grilla -->
+          <div id="obrasGridContainer" class="obras-grid">
+            <!-- Se autogenera con JS -->
+          </div>
+        </section>
+
         <!-- 1. VISTA GENERAL (OVERVIEW) -->
-        <section id="panel-overview" class="view-panel active">
+        <section id="panel-overview" class="view-panel">
           
           <!-- Fila de KPIs -->
           <div class="kpi-grid">
@@ -1250,10 +1424,18 @@
             
             <!-- Detalle de Actividades -->
             <div class="card">
-              <h3 class="card-title">
-                <i data-lucide="clipboard-list" style="color: var(--primary-color)"></i>
-                Ficha Técnica de Control Semanal
-              </h3>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f3f4; padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                <h3 class="card-title" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
+                  <i data-lucide="clipboard-list" style="color: var(--primary-color)"></i>
+                  Ficha Técnica de Control Semanal
+                </h3>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 0.725rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">Reporte Semanal:</span>
+                  <select id="fichaSelect" onchange="loadFichaDetails(this.value)" style="border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 12px; font-size: 0.825rem; font-weight: 600; background-color: var(--card-bg); color: var(--text-main); outline: none; cursor: pointer;">
+                    <!-- Se autogenera con JS -->
+                  </select>
+                </div>
+              </div>
 
               <div class="log-header-info">
                 <div class="info-item">
@@ -1488,7 +1670,9 @@
 
     let activeCarouselIndex = 0;
     let mapInstance = null;
+    let generalMapInstance = null;
     let radialChartInstance = null;
+    let selectedObraId = null;
 
     // Al cargar la página
     window.addEventListener("DOMContentLoaded", () => {
@@ -1519,6 +1703,7 @@
 
       // Cambiar título del Header
       const viewTitleMap = {
+        'obras': 'Listado General de Obras',
         'overview': 'Vista General',
         'fichas': 'Fichas de Control Semanal',
         'mapa': 'Ubicación y Mapa',
@@ -1529,6 +1714,18 @@
 
       // Cerrar sidebar en móviles tras clickear
       toggleSidebar(false);
+
+      // Si se cambia a la vista de obras, redimensionar mapa general
+      if (viewName === 'obras') {
+        document.getElementById("headerObraSelectorContainer").style.display = "none";
+        if (generalMapInstance) {
+          setTimeout(() => {
+            generalMapInstance.resize();
+          }, 150);
+        }
+      } else {
+        document.getElementById("headerObraSelectorContainer").style.display = "flex";
+      }
 
       // Si se cambia a la vista del mapa, redimensionar para asegurar render correcto
       if (viewName === 'mapa' && mapInstance) {
@@ -1574,6 +1771,9 @@
 
         console.log("Datos cargados correctamente:", dashboardData);
 
+        // Inicializar filtros geográficos tras la sincronización
+        populateFilterDropdowns();
+
         // Procesar y Renderizar
         renderDashboard();
         
@@ -1603,114 +1803,262 @@
       return json.data || [];
     }
 
+    // Rellenar filtros geográficos con valores únicos
+    function populateFilterDropdowns() {
+      const filterEstado = document.getElementById("filterEstado");
+      const filterMunicipio = document.getElementById("filterMunicipio");
+      const filterParroquia = document.getElementById("filterParroquia");
+      const headerObraSelect = document.getElementById("headerObraSelect");
+
+      const selEstado = filterEstado.value;
+      const selMunicipio = filterMunicipio.value;
+      const selParroquia = filterParroquia.value;
+
+      const estados = [...new Set(dashboardData.obras.map(o => o.ObraEstado).filter(Boolean))].sort();
+      const municipios = [...new Set(dashboardData.obras.map(o => o.ObraMunicipio).filter(Boolean))].sort();
+      const parroquias = [...new Set(dashboardData.obras.map(o => o.ObraParroquia).filter(Boolean))].sort();
+
+      filterEstado.innerHTML = '<option value="">Todos los Estados</option>';
+      estados.forEach(est => {
+        filterEstado.innerHTML += `<option value="${escapeHtml(est)}">${escapeHtml(est)}</option>`;
+      });
+
+      filterMunicipio.innerHTML = '<option value="">Todos los Municipios</option>';
+      municipios.forEach(mun => {
+        filterMunicipio.innerHTML += `<option value="${escapeHtml(mun)}">${escapeHtml(mun)}</option>`;
+      });
+
+      filterParroquia.innerHTML = '<option value="">Todas las Parroquias</option>';
+      parroquias.forEach(par => {
+        filterParroquia.innerHTML += `<option value="${escapeHtml(par)}">${escapeHtml(par)}</option>`;
+      });
+
+      headerObraSelect.innerHTML = '';
+      dashboardData.obras.forEach(o => {
+        headerObraSelect.innerHTML += `<option value="${escapeHtml(o.ObraID)}">${escapeHtml(o.ObraID)} - ${escapeHtml(o.ObraNombre.substring(0, 40))}...</option>`;
+      });
+
+      if (estados.includes(selEstado)) filterEstado.value = selEstado;
+      if (municipios.includes(selMunicipio)) filterMunicipio.value = selMunicipio;
+      if (parroquias.includes(selParroquia)) filterParroquia.value = selParroquia;
+    }
+
     // Renderizar todas las vistas con los datos cargados
     function renderDashboard() {
-      // 1. Obtener registro primario de Obra y Ficha
-      const obra = dashboardData.obras[0];
-      const ficha = dashboardData.fichas[0];
-
-      if (!obra) {
+      if (dashboardData.obras.length === 0) {
         showApiError("La hoja 'Obras' está vacía o no tiene registros válidos.");
         return;
       }
 
-      // 2. Calcular días transcurridos y restantes
+      if (!selectedObraId || !dashboardData.obras.some(o => o.ObraID === selectedObraId)) {
+        selectedObraId = dashboardData.obras[0].ObraID;
+      }
+
+      document.getElementById("headerObraSelect").value = selectedObraId;
+
+      filterObrasList();
+      renderActiveObra();
+    }
+
+    // Filtrar y ordenar la lista de obras según los dropdowns y buscador
+    function filterObrasList() {
+      const search = document.getElementById("searchObraInput").value.trim().toLowerCase();
+      const estado = document.getElementById("filterEstado").value;
+      const municipio = document.getElementById("filterMunicipio").value;
+      const parroquia = document.getElementById("filterParroquia").value;
+      const sortBy = document.getElementById("sortObras").value;
+
+      let filteredObras = dashboardData.obras.filter(obra => {
+        const matchesSearch = !search || 
+          obra.ObraNombre.toLowerCase().includes(search) || 
+          obra.ObraID.toLowerCase().includes(search);
+        const matchesEstado = !estado || obra.ObraEstado === estado;
+        const matchesMunicipio = !municipio || obra.ObraMunicipio === municipio;
+        const matchesParroquia = !parroquia || obra.ObraParroquia === parroquia;
+
+        return matchesSearch && matchesEstado && matchesMunicipio && matchesParroquia;
+      });
+
+      filteredObras.sort((a, b) => {
+        if (sortBy === "empresa") {
+          const empA = (dashboardData.empresas.find(e => e.EmpresaID === a.EmpresaID)?.EmpresaNombre || "").toLowerCase();
+          const empB = (dashboardData.empresas.find(e => e.EmpresaID === b.EmpresaID)?.EmpresaNombre || "").toLowerCase();
+          return empA.localeCompare(empB);
+        } else if (sortBy === "estado") {
+          return a.ObraEstado.localeCompare(b.ObraEstado);
+        } else if (sortBy === "municipio") {
+          return a.ObraMunicipio.localeCompare(b.ObraMunicipio);
+        } else {
+          return a.ObraNombre.localeCompare(b.ObraNombre);
+        }
+      });
+
+      const container = document.getElementById("obrasGridContainer");
+      container.innerHTML = "";
+
+      if (filteredObras.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted); width: 100%;">
+            <i data-lucide="info" style="width: 48px; height: 48px; margin: 0 auto 16px auto; color: var(--primary-color);"></i>
+            <h4 style="font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;">No se encontraron obras</h4>
+            <p style="font-size: 0.9rem;">Prueba a cambiar tus filtros de búsqueda o ingresa más obras en tu Google Sheet.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        updateGeneralMap(filteredObras);
+        return;
+      }
+
+      filteredObras.forEach(obra => {
+        const activeFichas = dashboardData.fichas.filter(f => f.ObraID === obra.ObraID)
+          .sort((a, b) => new Date(b.FichaFecha) - new Date(a.FichaFecha));
+        const progressDecimal = activeFichas[0] ? parseFloat(activeFichas[0].FichaPorcentajeAcumulado) : 0;
+        const progressPercent = Math.round(progressDecimal * 10000) / 100;
+
+        const card = document.createElement("div");
+        card.className = "obra-card";
+        
+        const estStatus = obra.ObraEstatus || "EN EJECUCION";
+        const statusClass = estStatus.includes("CONCLUIDA") ? "status-concluida" : 
+                            estStatus.includes("PARALIZADA") ? "status-paralizada" : "status-ejecucion";
+
+        card.innerHTML = `
+          <div>
+            <div class="obra-card-header">
+              <span class="obra-card-id">${escapeHtml(obra.ObraID)}</span>
+              <div class="status-badge ${statusClass}">
+                <span class="status-dot"></span>
+                <span>${escapeHtml(estStatus)}</span>
+              </div>
+            </div>
+            <h4 class="obra-card-title" title="${escapeHtml(obra.ObraNombre)}">${escapeHtml(obra.ObraNombre)}</h4>
+            <ul class="obra-card-details">
+              <li class="obra-card-detail-item">
+                <i data-lucide="map-pin"></i>
+                <span>${escapeHtml(obra.ObraEstado)} - ${escapeHtml(obra.ObraMunicipio)} - ${escapeHtml(obra.ObraParroquia)}</span>
+              </li>
+              <li class="obra-card-detail-item">
+                <i data-lucide="building-2"></i>
+                <span>Contratista: ${escapeHtml(dashboardData.empresas.find(e => e.EmpresaID === obra.EmpresaID)?.EmpresaNombre || "No indicado")}</span>
+              </li>
+              <li class="obra-card-detail-item">
+                <i data-lucide="calendar"></i>
+                <span>Plazo: ${formatDate(obra.ObraFechaInicio)} al ${formatDate(obra.ObraFechaFin)}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="obra-card-footer">
+            <div class="obra-card-progress">
+              <span class="obra-card-progress-text">Avance: ${progressPercent}%</span>
+              <div class="progress-bar-container" style="margin-top: 2px;">
+                <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
+              </div>
+            </div>
+            <div class="obra-card-actions">
+              <button class="btn btn-primary" style="height: 36px; padding: 0 14px; font-size: 0.8rem; font-weight: 700; width: auto;" onclick="selectObra('${escapeHtml(obra.ObraID)}', true)">
+                Ver Detalle
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+      updateGeneralMap(filteredObras);
+    }
+
+    // Cambiar la obra activa
+    function selectObra(obraId, goToDashboard = false) {
+      selectedObraId = obraId;
+      document.getElementById("headerObraSelect").value = obraId;
+
+      renderActiveObra();
+
+      if (goToDashboard) {
+        switchView('overview');
+      }
+    }
+
+    // Renderizar los paneles de la obra seleccionada
+    function renderActiveObra() {
+      const obra = dashboardData.obras.find(o => o.ObraID === selectedObraId);
+      if (!obra) return;
+
+      const activeObrasFichas = dashboardData.fichas.filter(f => f.ObraID === selectedObraId)
+        .sort((a, b) => new Date(b.FichaFecha) - new Date(a.FichaFecha));
+
+      const fichaSelect = document.getElementById("fichaSelect");
+      fichaSelect.innerHTML = "";
+
+      if (activeObrasFichas.length === 0) {
+        fichaSelect.innerHTML = '<option value="">Sin Fichas</option>';
+        fichaSelect.disabled = true;
+        
+        document.getElementById("fichaLabelID").innerText = "-";
+        document.getElementById("fichaLabelPeriodo").innerText = "-";
+        document.getElementById("fichaLabelFecha").innerText = "-";
+        document.getElementById("activitiesList").innerHTML = `<li style="font-size: 0.9rem; color: var(--text-muted)">No hay fichas técnicas registradas para esta obra.</li>`;
+        document.getElementById("fichaObservaciones").innerText = "Sin observaciones registradas.";
+        renderCarousel(null);
+
+        document.getElementById("kpiProgressVal").innerText = "0%";
+        document.getElementById("kpiProgressBarFill").style.width = "0%";
+        document.getElementById("kpiWorkersVal").innerText = "0";
+        renderRadialProgressChart(0);
+      } else {
+        fichaSelect.disabled = false;
+        activeObrasFichas.forEach(f => {
+          fichaSelect.innerHTML += `<option value="${escapeHtml(f.FichaID)}">Ficha: ${escapeHtml(f.FichaID)} (${formatDate(f.FichaFecha)})</option>`;
+        });
+
+        const activeFicha = activeObrasFichas[0];
+        fichaSelect.value = activeFicha.FichaID;
+
+        loadFichaDetails(activeFicha.FichaID);
+      }
+
       const dateStart = new Date(obra.ObraFechaInicio);
       const dateEnd = new Date(obra.ObraFechaFin);
-      const dateToday = new Date(); // Fecha actual real
+      const dateToday = new Date();
 
-      // Días totales planificados
       const totalDays = Math.max(1, Math.floor((dateEnd - dateStart) / (1000 * 60 * 60 * 24)));
-      // Días transcurridos (límite superior: totalDays)
       let elapsedDays = Math.floor((dateToday - dateStart) / (1000 * 60 * 60 * 24));
       elapsedDays = Math.min(totalDays, Math.max(0, elapsedDays));
-      // Días restantes (límite inferior: 0)
       let remainingDays = Math.floor((dateEnd - dateToday) / (1000 * 60 * 60 * 24));
       remainingDays = Math.max(0, remainingDays);
 
-      // 3. Obtener el progreso físico acumulado (desde Ficha o Obra)
-      // Si la ficha tiene FichaPorcentajeAcumulado, lo usamos. Si no, 0.
-      const progressDecimal = ficha ? parseFloat(ficha.FichaPorcentajeAcumulado) : 0;
-      const progressPercent = Math.round(progressDecimal * 10000) / 100; // Ej: 57.65
-
-      // 4. Actualizar KPIs de la Vista General
-      document.getElementById("kpiProgressVal").innerText = `${progressPercent}%`;
-      document.getElementById("kpiProgressBarFill").style.width = `${progressPercent}%`;
-      
-      document.getElementById("kpiWorkersVal").innerText = ficha ? ficha.FichaNumeroTrabajadores : 0;
-      
       document.getElementById("kpiElapsedVal").innerText = `${elapsedDays} días`;
       document.getElementById("kpiElapsedSub").innerText = `Inicio: ${formatDate(obra.ObraFechaInicio)}`;
       
       document.getElementById("kpiRemainingVal").innerText = `${remainingDays} días`;
       document.getElementById("kpiRemainingSub").innerText = `Límite: ${formatDate(obra.ObraFechaFin)}`;
 
-      // 5. Configurar Badge de Estado en el Header
       document.getElementById("projectStatusText").innerText = obra.ObraEstatus || "EN EJECUCION";
-      
-      // 6. Rellenar Datos Textuales en Vista General
+
       document.getElementById("fieldObraNombre").innerText = obra.ObraNombre;
-      document.getElementById("fieldObraAlcance").innerText = obra.ObraAlcance || "CONSTRUCCIÓN DE MURO ALETA FUNDADO SOBRE MICROPILOTES Y ANCLAJES PASIVOS PARA REPARACIÓN DE FALLA DE BORDE EN KM 59.";
+      document.getElementById("fieldObraAlcance").innerText = obra.ObraAlcance || "Sin alcance especificado.";
       document.getElementById("fieldObraEstado").innerText = obra.ObraEstado;
       document.getElementById("fieldObraMunicipio").innerText = obra.ObraMunicipio;
       document.getElementById("fieldObraFechaInicio").innerText = formatDateFull(obra.ObraFechaInicio);
       document.getElementById("fieldObraFechaFin").innerText = formatDateFull(obra.ObraFechaFin);
 
-      // 7. Renderizar Gráfico Radial de Avance Físico
-      renderRadialProgressChart(progressPercent);
-
-      // 8. Rellenar Datos de la Ficha Técnica de Control
-      if (ficha) {
-        document.getElementById("fichaLabelID").innerText = ficha.FichaID;
-        document.getElementById("fichaLabelPeriodo").innerText = `${formatDate(ficha.FichaFechaDesde)} al ${formatDate(ficha.FichaFechaHasta)}`;
-        document.getElementById("fichaLabelFecha").innerText = formatDate(ficha.FichaFecha);
-        document.getElementById("fichaObservaciones").innerText = ficha.FichaObservaciones || "Sin observaciones registradas.";
-
-        // Renderizar Lista de Actividades como Checklist
-        const activitiesContainer = document.getElementById("activitiesList");
-        activitiesContainer.innerHTML = "";
-        
-        if (ficha.FichaActividadesEjecutadas) {
-          const acts = ficha.FichaActividadesEjecutadas.split("\n").filter(a => a.trim() !== "");
-          acts.forEach(actText => {
-            const li = document.createElement("li");
-            li.className = "activity-item";
-            li.innerHTML = `
-              <div class="activity-checkbox">
-                <i data-lucide="check-square" style="width: 18px; height: 18px;"></i>
-              </div>
-              <span class="activity-text">${escapeHtml(actText)}</span>
-            `;
-            activitiesContainer.appendChild(li);
-          });
-        } else {
-          activitiesContainer.innerHTML = `<li style="font-size: 0.9rem; color: var(--text-muted)">No hay actividades registradas en esta ficha.</li>`;
-        }
-      }
-
-      // 9. Rellenar Carrusel Fotográfico
-      renderCarousel(ficha ? ficha.FichaID : null);
-
-      // 10. Inicializar/Actualizar Mapa Geográfico
       initMap(obra);
 
-      // 11. Rellenar Datos de Contratista y Equipo de Ingenieros
-      // Buscar contratista
       const empresa = dashboardData.empresas.find(e => e.EmpresaID === obra.EmpresaID) || dashboardData.empresas[0];
       if (empresa) {
         document.getElementById("fieldEmpresaNombre").innerText = empresa.EmpresaNombre;
         document.getElementById("fieldEmpresaID").innerText = `ID Contratista: ${empresa.EmpresaID}`;
       }
 
-      // Buscar Ingenieros
-      const residente = dashboardData.ingenieros.find(i => i.IngenieroNombre.toUpperCase() === obra.ObraResidente.toUpperCase()) || {
-        IngenieroNombre: obra.ObraResidente,
+      const residente = dashboardData.ingenieros.find(i => i.IngenieroNombre.toUpperCase() === (obra.ObraResidente || "").toUpperCase()) || {
+        IngenieroNombre: obra.ObraResidente || "No asignado",
         IngenieroCargo: "RESIDENTE",
         IngenieroTelefono: "No indicado"
       };
-      const inspector = dashboardData.ingenieros.find(i => i.IngenieroNombre.toUpperCase() === obra.ObraInspector.toUpperCase()) || {
-        IngenieroNombre: obra.ObraInspector,
-        IngenieroCargo: "INSPECTORA",
+      const inspector = dashboardData.ingenieros.find(i => i.IngenieroNombre.toUpperCase() === (obra.ObraInspector || "").toUpperCase()) || {
+        IngenieroNombre: obra.ObraInspector || "No asignado",
+        IngenieroCargo: "INSPECTOR",
         IngenieroTelefono: "No indicado"
       };
 
@@ -1720,8 +2068,129 @@
       document.getElementById("inspectorName").innerText = inspector.IngenieroNombre;
       document.getElementById("inspectorPhone").innerText = inspector.IngenieroTelefono || "Sin teléfono registrado";
 
-      // Re-inicializar iconos para soportar nuevos dinámicos
       lucide.createIcons();
+    }
+
+    // Cargar los detalles específicos de una ficha seleccionada
+    function loadFichaDetails(fichaId) {
+      const ficha = dashboardData.fichas.find(f => f.FichaID === fichaId);
+      if (!ficha) return;
+
+      document.getElementById("fichaLabelID").innerText = ficha.FichaID;
+      document.getElementById("fichaLabelPeriodo").innerText = `${formatDate(ficha.FichaFechaDesde)} al ${formatDate(ficha.FichaFechaHasta)}`;
+      document.getElementById("fichaLabelFecha").innerText = formatDate(ficha.FichaFecha);
+      document.getElementById("fichaObservaciones").innerText = ficha.FichaObservaciones || "Sin observaciones registradas.";
+
+      const activitiesContainer = document.getElementById("activitiesList");
+      activitiesContainer.innerHTML = "";
+      
+      if (ficha.FichaActividadesEjecutadas) {
+        const acts = ficha.FichaActividadesEjecutadas.split("\n").filter(a => a.trim() !== "");
+        acts.forEach(actText => {
+          const li = document.createElement("li");
+          li.className = "activity-item";
+          li.innerHTML = `
+            <div class="activity-checkbox">
+              <i data-lucide="check-square" style="width: 18px; height: 18px;"></i>
+            </div>
+            <span class="activity-text">${escapeHtml(actText)}</span>
+          `;
+          activitiesContainer.appendChild(li);
+        });
+      } else {
+        activitiesContainer.innerHTML = `<li style="font-size: 0.9rem; color: var(--text-muted)">No hay actividades registradas en esta ficha.</li>`;
+      }
+
+      renderCarousel(ficha.FichaID);
+
+      const progressDecimal = parseFloat(ficha.FichaPorcentajeAcumulado) || 0;
+      const progressPercent = Math.round(progressDecimal * 10000) / 100;
+
+      document.getElementById("kpiProgressVal").innerText = `${progressPercent}%`;
+      document.getElementById("kpiProgressBarFill").style.width = `${progressPercent}%`;
+      document.getElementById("kpiWorkersVal").innerText = ficha.FichaNumeroTrabajadores || 0;
+
+      renderRadialProgressChart(progressPercent);
+
+      lucide.createIcons();
+    }
+
+    // Actualizar el mapa general con múltiples obras geolocalizadas
+    function updateGeneralMap(filteredObras) {
+      if (generalMapInstance) {
+        generalMapInstance.remove();
+        generalMapInstance = null;
+      }
+
+      const obrasConCoordenadas = filteredObras.filter(o => o.ObraCoordenada && o.ObraCoordenada.includes(","));
+      if (obrasConCoordenadas.length === 0) {
+        document.getElementById("generalMap").style.display = "none";
+        return;
+      }
+      document.getElementById("generalMap").style.display = "block";
+
+      let centerLat = 10.3950;
+      let centerLng = -66.4060;
+
+      let sumLat = 0;
+      let sumLng = 0;
+      let coordCount = 0;
+
+      obrasConCoordenadas.forEach(o => {
+        const parts = o.ObraCoordenada.split(",");
+        const lat = parseFloat(parts[0]);
+        const lng = parseFloat(parts[1]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          sumLat += lat;
+          sumLng += lng;
+          coordCount++;
+        }
+      });
+
+      if (coordCount > 0) {
+        centerLat = sumLat / coordCount;
+        centerLng = sumLng / coordCount;
+      }
+
+      try {
+        generalMapInstance = new maplibregl.Map({
+          container: 'generalMap',
+          style: 'https://tiles.openfreemap.org/styles/positron',
+          center: [centerLng, centerLat],
+          zoom: coordCount > 1 ? 8 : 12,
+          attributionControl: false
+        });
+
+        generalMapInstance.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+        obrasConCoordenadas.forEach(o => {
+          const parts = o.ObraCoordenada.split(",");
+          const lat = parseFloat(parts[0]);
+          const lng = parseFloat(parts[1]);
+
+          if (!isNaN(lat) && !isNaN(lng)) {
+            const est = o.ObraEstatus || "EN EJECUCION";
+            const color = est.includes("CONCLUIDA") ? "#34a853" : 
+                          est.includes("PARALIZADA") ? "#ea4335" : "#1a73e8";
+
+            const marker = new maplibregl.Marker({ color: color })
+              .setLngLat([lng, lat])
+              .setPopup(new maplibregl.Popup({ offset: 25 }).setHTML(`
+                <div style="font-family: 'Inter', sans-serif; padding: 6px; min-width: 180px;">
+                  <h4 style="font-weight: 700; color: ${color}; font-size: 0.85rem; margin-bottom: 4px;">${escapeHtml(o.ObraID)}</h4>
+                  <p style="font-size: 0.75rem; color: #3c4043; line-height: 1.3; margin-bottom: 8px;">${escapeHtml(o.ObraNombre.substring(0, 80))}...</p>
+                  <div style="font-size: 0.725rem; color: #5f6368; margin-bottom: 8px;">Ubicación: ${escapeHtml(o.ObraEstado)} - ${escapeHtml(o.ObraMunicipio)}</div>
+                  <button class="btn btn-primary" style="height: 28px; font-size: 0.7rem; padding: 0 8px; width: 100%; font-weight: 700;" onclick="selectObra('${escapeHtml(o.ObraID)}', true)">
+                    Ver Detalle de Obra
+                  </button>
+                </div>
+              `))
+              .addTo(generalMapInstance);
+          }
+        });
+      } catch (err) {
+        console.error("Error al inicializar el mapa general:", err);
+      }
     }
 
     // Inicializar Mapa con MapLibre GL JS
