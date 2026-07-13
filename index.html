@@ -3,2746 +3,2029 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard — Seguimiento de Inspecciones de Obras</title>
+  <title>Ortegon Dashboard — Control de Obras</title>
   
-  <!-- Google Fonts: Outfit & Inter -->
+  <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- CSS CDN Imports -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-  
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  
-  <!-- Visualization & Mapping Libraries (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  
+  <!-- MapLibre GL JS CSS -->
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+
+  <!-- Premium Vanilla CSS Styling -->
   <style>
-    /* Variables del Sistema de Diseño Premium */
+    /* variables de diseño premium */
     :root {
-      --bg-primary: #0f172a;
-      --bg-secondary: #1e293b;
-      --bg-card: #1e293b;
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --border-color: #334155;
-      --accent-color: #3b82f6;
-      --accent-hover: #2563eb;
-      --accent-glow: rgba(59, 130, 246, 0.15);
-      --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-      --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
-      --success-color: #10b981;
-      --success-light: rgba(16, 185, 129, 0.15);
-      --warning-color: #f59e0b;
-      --warning-light: rgba(245, 158, 11, 0.15);
-      --danger-color: #ef4444;
-      --danger-light: rgba(239, 68, 68, 0.15);
-      --sidebar-width: 280px;
-      --header-height: 80px;
-      --glass-bg: rgba(30, 41, 59, 0.7);
-      --glass-border: rgba(255, 255, 255, 0.05);
+      --primary-color: #1a73e8;
+      --primary-hover: #1557b0;
+      --primary-light: #e8f0fe;
+      --success-color: #34a853;
+      --success-light: #e6f4ea;
+      --warning-color: #fbbc04;
+      --warning-light: #fef7e0;
+      --error-color: #ea4335;
+      --error-light: #fce8e6;
+      --bg-color: #f8f9fa;
+      --card-bg: #ffffff;
+      --sidebar-bg: #111827;
+      --sidebar-text: #9ca3af;
+      --sidebar-text-hover: #f3f4f6;
+      --sidebar-active-bg: #1f2937;
+      --text-main: #1f2937;
+      --text-muted: #5f6368;
+      --border-color: #dadce0;
+      --shadow-sm: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    [data-theme="light"] {
-      --bg-primary: #f8fafc;
-      --bg-secondary: #ffffff;
-      --bg-card: #ffffff;
-      --text-primary: #0f172a;
-      --text-secondary: #64748b;
-      --border-color: #e2e8f0;
-      --accent-color: #2563eb;
-      --accent-hover: #1d4ed8;
-      --accent-glow: rgba(37, 99, 235, 0.1);
-      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-      --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-      --success-color: #059669;
-      --success-light: rgba(5, 150, 105, 0.1);
-      --warning-color: #d97706;
-      --warning-light: rgba(217, 119, 6, 0.1);
-      --danger-color: #dc2626;
-      --danger-light: rgba(220, 38, 38, 0.1);
-      --glass-bg: rgba(255, 255, 255, 0.8);
-      --glass-border: rgba(0, 0, 0, 0.05);
-    }
-
-    /* Estilos Base */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', sans-serif;
-      transition: background-color 0.25s ease, border-color 0.25s ease;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-      font-family: 'Outfit', sans-serif;
-      font-weight: 600;
     }
 
     body {
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
       min-height: 100vh;
-      display: flex;
       overflow-x: hidden;
     }
 
     /* Layout principal */
-    .app-container {
-      display: flex;
-      width: 100%;
+    .layout-wrapper {
+      display: grid;
+      grid-template-columns: 260px 1fr;
       min-height: 100vh;
+      position: relative;
     }
 
-    /* Sidebar Fijo */
+    /* Sidebar */
     .sidebar {
-      width: var(--sidebar-width);
-      background-color: var(--bg-secondary);
-      border-right: 1px solid var(--border-color);
+      background-color: var(--sidebar-bg);
+      color: #ffffff;
+      padding: 24px 16px;
       display: flex;
       flex-direction: column;
       height: 100vh;
-      position: fixed;
-      left: 0;
+      position: sticky;
       top: 0;
       z-index: 100;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      transition: var(--transition);
     }
 
-    .sidebar-brand {
-      padding: 24px 20px;
+    .sidebar-header {
       display: flex;
       align-items: center;
       gap: 12px;
-      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 32px;
+      padding: 0 8px;
     }
 
-    .brand-logo {
-      background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
-      color: white;
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
+    .logo-container {
+      background-color: var(--primary-color);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      color: white;
+      box-shadow: 0 0 15px rgba(26, 115, 232, 0.4);
     }
 
-    .brand-text h1 {
-      font-size: 16px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      background: linear-gradient(to right, var(--text-primary), var(--accent-color));
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff, #9ca3af);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .brand-text p {
-      font-size: 11px;
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
-
     .sidebar-menu {
       list-style: none;
-      padding: 24px 12px;
-      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
+      flex-grow: 1;
+    }
+
+    .menu-item {
+      display: block;
     }
 
     .menu-item button {
       width: 100%;
-      padding: 12px 16px;
-      border: none;
       background: none;
-      border-radius: 10px;
-      color: var(--text-secondary);
-      font-weight: 500;
-      font-size: 14px;
-      text-align: left;
+      border: none;
+      color: var(--sidebar-text);
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       gap: 12px;
+      font-size: 0.925rem;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .menu-item button i {
-      width: 18px;
-      height: 18px;
+      text-align: left;
+      transition: var(--transition);
     }
 
     .menu-item button:hover {
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
+      color: var(--sidebar-text-hover);
+      background-color: rgba(255, 255, 255, 0.05);
     }
 
     .menu-item.active button {
-      background-color: var(--accent-glow);
-      color: var(--accent-color);
+      color: white;
+      background-color: var(--primary-color);
       font-weight: 600;
-      box-shadow: inset 4px 0 0 var(--accent-color);
-      border-radius: 0 10px 10px 0;
+      box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
     }
 
     .sidebar-footer {
-      padding: 16px;
-      border-top: 1px solid var(--border-color);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 16px;
+      margin-top: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 4px;
     }
 
-    .theme-toggle-btn {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+    .sidebar-footer .author {
+      font-size: 0.8rem;
+      color: var(--sidebar-text);
     }
 
-    .theme-toggle-btn:hover {
-      background-color: var(--border-color);
+    .sidebar-footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: var(--transition);
     }
 
-    /* Contenido Principal */
-    .main-content {
-      flex: 1;
-      margin-left: var(--sidebar-width);
-      padding: 30px;
-      min-height: 100vh;
+    .sidebar-footer a:hover {
+      color: #3b82f6;
+    }
+
+    /* Main Panel */
+    .main-panel {
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      width: calc(100% - var(--sidebar-width));
+      min-width: 0; /* previene desbordamiento en flexbox */
     }
 
     /* Header */
     .header {
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 32px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      box-shadow: 0 1px 2px 0 rgba(60,64,67,0.05);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
       gap: 16px;
-      flex-wrap: wrap;
     }
 
-    .header-title h2 {
-      font-size: 26px;
-      font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: -0.5px;
-    }
-
-    .header-title p {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .connection-status {
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .status-api {
-      background-color: var(--success-light);
-      color: var(--success-color);
-    }
-
-    .status-fallback {
-      background-color: var(--warning-light);
-      color: var(--warning-color);
-    }
-
-    .pulse-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      animation: pulse 1.5s infinite;
-    }
-
-    .status-api .pulse-dot { background-color: var(--success-color); }
-    .status-fallback .pulse-dot { background-color: var(--warning-color); }
-
-    @keyframes pulse {
-      0% { transform: scale(0.9); opacity: 0.5; }
-      50% { transform: scale(1.15); opacity: 1; }
-      100% { transform: scale(0.9); opacity: 0.5; }
-    }
-
-    .filter-select {
-      padding: 10px 16px;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-      font-size: 14px;
-      outline: none;
-      cursor: pointer;
-      min-width: 150px;
-      font-weight: 500;
-    }
-
-    .filter-select:focus {
-      border-color: var(--accent-color);
-      box-shadow: 0 0 0 2px var(--accent-glow);
-    }
-
-    .btn-action {
-      background-color: var(--accent-color);
-      color: white;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: background-color 0.2s;
-    }
-
-    .btn-action:hover {
-      background-color: var(--accent-hover);
-    }
-
-    .hamburger-menu {
+    .menu-toggle {
       display: none;
       background: none;
       border: none;
-      color: var(--text-primary);
+      font-size: 1.5rem;
       cursor: pointer;
-      padding: 8px;
+      color: var(--text-main);
+      padding: 4px;
+      border-radius: 4px;
     }
 
-    /* Grid de KPIs */
+    .menu-toggle:hover {
+      background-color: #f1f3f4;
+    }
+
+    .header-title-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header-subtitle {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.825rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-badge.en-ejecucion {
+      background-color: var(--success-light);
+      color: var(--success-color);
+      box-shadow: 0 0 10px rgba(52, 168, 83, 0.15);
+      border: 1px solid rgba(52, 168, 83, 0.2);
+    }
+
+    .sync-btn {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      font-size: 0.875rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      height: 38px;
+    }
+
+    .sync-btn:hover {
+      background-color: #f1f3f4;
+      border-color: #c4c7c9;
+    }
+
+    .sync-btn.spinning svg {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: 32px;
+      flex-grow: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Vista Panels: ocultos por defecto */
+    .view-panel {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .view-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* KPI Cards Row */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 20px;
+      margin-bottom: 28px;
     }
 
     .kpi-card {
-      background-color: var(--bg-card);
+      background-color: var(--card-bg);
+      border-radius: var(--radius-md);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
       padding: 20px;
-      box-shadow: var(--card-shadow);
+      box-shadow: 0 1px 2px 0 rgba(60,64,67,0.05);
+      position: relative;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-      min-height: 140px;
+      min-height: 125px;
+      transition: var(--transition);
     }
 
     .kpi-card:hover {
-      box-shadow: var(--card-shadow-hover);
       transform: translateY(-2px);
-      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      border-color: var(--primary-color);
     }
 
     .kpi-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      margin-bottom: 8px;
     }
 
     .kpi-title {
-      font-size: 13px;
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: var(--text-secondary);
-      font-weight: 600;
     }
 
-    .kpi-value {
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-top: 6px;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    .kpi-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
+    .kpi-icon-wrapper {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .kpi-icon.blue { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-    .kpi-icon.purple { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
-    .kpi-icon.amber { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-    .kpi-icon.red { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .kpi-card.kpi-progress .kpi-icon-wrapper { background-color: var(--primary-light); color: var(--primary-color); }
+    .kpi-card.kpi-workers .kpi-icon-wrapper { background-color: var(--success-light); color: var(--success-color); }
+    .kpi-card.kpi-elapsed .kpi-icon-wrapper { background-color: var(--warning-light); color: #b06000; }
+    .kpi-card.kpi-remaining .kpi-icon-wrapper { background-color: var(--error-light); color: var(--error-color); }
 
-    .kpi-sparkline {
-      height: 45px;
-      margin-top: 10px;
-      margin-bottom: -10px;
-      margin-left: -15px;
-      margin-right: -15px;
+    .kpi-body {
+      display: flex;
+      flex-direction: column;
     }
 
-    /* Grid del Dashboard */
+    .kpi-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.15;
+      letter-spacing: -1px;
+    }
+
+    .kpi-subtitle {
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Grids */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 3fr 2fr;
       gap: 24px;
+      margin-bottom: 24px;
     }
 
-    .full-width {
-      grid-column: span 2;
-    }
-
-    .card-panel {
-      background-color: var(--bg-card);
+    .card {
+      background-color: var(--card-bg);
+      border-radius: var(--radius-md);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
       padding: 24px;
-      box-shadow: var(--card-shadow);
+      box-shadow: 0 1px 2px 0 rgba(60,64,67,0.05);
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #f1f3f4;
+      padding-bottom: 12px;
+    }
+
+    /* Info Lists */
+    .info-list {
+      list-style: none;
       display: flex;
       flex-direction: column;
       gap: 16px;
     }
 
-    .card-panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card-panel-header h3 {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .chart-box {
-      width: 100%;
-      height: 320px;
-      position: relative;
-    }
-
-    /* Pestañas de la Interfaz */
-    .tab-panel {
-      display: none;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .tab-panel.active {
-      display: flex;
-    }
-
-    /* Mapa Interactivos */
-    .map-container-wrapper {
-      display: grid;
-      grid-template-columns: 350px 1fr;
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      overflow: hidden;
-      height: 600px;
-      box-shadow: var(--card-shadow);
-    }
-
-    .map-sidebar {
-      background-color: var(--bg-secondary);
-      border-right: 1px solid var(--border-color);
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .map-sidebar-header {
-      padding: 16px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .map-sidebar-header h4 {
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    .map-sidebar-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .map-list-item {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border-color);
-      cursor: pointer;
+    .info-item {
       display: flex;
       flex-direction: column;
       gap: 4px;
-      transition: background-color 0.2s;
     }
 
-    .map-list-item:hover {
-      background-color: var(--bg-primary);
-    }
-
-    .map-list-item.active {
-      background-color: var(--accent-glow);
-      border-left: 4px solid var(--accent-color);
-    }
-
-    .map-list-item h5 {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .map-list-item p {
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-
-    .map-list-item .badge-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .map-box {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* Banners de Alerta */
-    .alert-banner {
-      border-radius: 12px;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-
-    .alert-banner-warning {
-      background-color: var(--warning-light);
-      border: 1px solid var(--warning-color);
-    }
-
-    .alert-banner h4 {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .alert-banner p {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 2px;
-      line-height: 1.4;
-    }
-
-    /* Badges */
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 10px;
+    .info-label {
+      font-size: 0.8rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
     }
 
-    .badge-critico { background-color: var(--danger-light); color: var(--danger-color); }
-    .badge-moderado { background-color: var(--warning-light); color: var(--warning-color); }
-    .badge-leve { background-color: var(--success-light); color: var(--success-color); }
-    .badge-normal { background-color: var(--accent-glow); color: var(--accent-color); }
-
-    /* Custom Popups MapLibre */
-    .maplibregl-popup-content {
-      background-color: var(--bg-secondary) !important;
-      color: var(--text-primary) !important;
-      border: 1px solid var(--border-color);
-      border-radius: 12px !important;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
-      padding: 16px !important;
-      max-width: 280px;
-    }
-
-    .maplibregl-popup-close-button {
-      color: var(--text-secondary) !important;
-      padding: 6px !important;
-      font-size: 16px !important;
-    }
-
-    .popup-content h4 {
-      font-size: 14px;
-      margin-bottom: 6px;
-      color: var(--text-primary);
-    }
-
-    .popup-content p {
-      font-size: 11px;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
-      line-height: 1.4;
-    }
-
-    /* Tabla Looker Studio */
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 13px;
-    }
-
-    th {
-      background-color: var(--bg-secondary);
-      color: var(--text-secondary);
-      font-weight: 600;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border-color);
-      cursor: pointer;
-      user-select: none;
-      white-space: nowrap;
-    }
-
-    th:hover {
-      color: var(--text-primary);
-    }
-
-    td {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border-color);
-      color: var(--text-primary);
+    .info-value {
+      font-size: 0.95rem;
+      font-weight: 500;
       line-height: 1.5;
     }
 
-    tr:hover td {
-      background-color: var(--bg-secondary);
+    .info-value.bold-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary-color);
     }
 
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    .progress-cell-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .progress-bar-bg {
-      width: 100px;
-      height: 6px;
-      background-color: var(--border-color);
-      border-radius: 3px;
+    /* Progress bar custom */
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background-color: #f1f3f4;
+      border-radius: 4px;
       overflow: hidden;
-      flex-shrink: 0;
+      margin-top: 10px;
     }
 
     .progress-bar-fill {
       height: 100%;
-      border-radius: 3px;
+      background-color: var(--primary-color);
+      border-radius: 4px;
+      transition: width 1s ease-in-out;
     }
 
-    .looker-search-bar {
+    /* Charts Container */
+    .chart-container-flex {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 250px;
+    }
+
+    /* Ficha Logs Panel details */
+    .fichas-layout {
+      display: grid;
+      grid-template-columns: 4fr 3fr;
+      gap: 24px;
+    }
+
+    .log-header-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 16px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
-
-    .search-input-box {
-      position: relative;
-      flex: 1;
-      max-width: 400px;
-    }
-
-    .search-input-box i {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-secondary);
-    }
-
-    .search-input-field {
-      width: 100%;
-      padding: 10px 16px 10px 42px;
+      background-color: #f8f9fa;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-      font-size: 14px;
-      outline: none;
     }
 
-    .search-input-field:focus {
-      border-color: var(--accent-color);
-    }
-
-    /* Paginación */
-    .pagination-bar {
+    /* Activities Checklist */
+    .activities-list {
+      list-style: none;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      gap: 12px;
       margin-top: 16px;
     }
 
-    .pagination-info {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .pagination-buttons {
+    .activity-item {
       display: flex;
-      gap: 8px;
-    }
-
-    .btn-pagination {
-      padding: 8px 12px;
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      color: var(--text-primary);
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    .btn-pagination:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .btn-pagination:hover:not(:disabled) {
-      background-color: var(--border-color);
-    }
-
-    /* Pestaña de Diagnósticos */
-    .diagnostics-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    .diagnostic-card {
-      background-color: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: var(--card-shadow);
-      display: flex;
-      flex-direction: column;
+      align-items: flex-start;
       gap: 12px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background-color: #ffffff;
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+    }
+
+    .activity-item:hover {
+      background-color: #f8fafc;
+      border-color: var(--primary-color);
+    }
+
+    .activity-checkbox {
+      margin-top: 2px;
+      color: var(--success-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .activity-text {
+      font-size: 0.9rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    /* Carousel */
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background-color: #f1f3f4;
+      aspect-ratio: 4 / 3;
+      border: 1px solid var(--border-color);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    .carousel-slide {
+      width: 100%;
+      height: 100%;
+      display: none;
       position: relative;
     }
 
-    .diagnostic-card::before {
-      content: '';
+    .carousel-slide.active {
+      display: block;
+    }
+
+    .carousel-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .carousel-image:hover {
+      transform: scale(1.03);
+    }
+
+    .carousel-control {
       position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 6px;
-      border-radius: 16px 0 0 16px;
-    }
-
-    .diagnostic-card.severity-critico::before { background-color: var(--danger-color); }
-    .diagnostic-card.severity-moderado::before { background-color: var(--warning-color); }
-    .diagnostic-card.severity-leve::before { background-color: var(--success-color); }
-
-    .diagnostic-card-header {
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(255, 255, 255, 0.9);
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .diagnostic-card h4 {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-
-    .diagnostic-card p {
-      font-size: 12px;
-      color: var(--text-secondary);
-      line-height: 1.5;
-    }
-
-    .diagnostic-actions-box {
-      margin-top: 8px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .diagnostic-actions-title {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--accent-color);
-      margin-bottom: 6px;
-    }
-
-    .diagnostic-actions-content {
-      font-size: 12px;
-      color: var(--text-primary);
-      line-height: 1.5;
-      max-height: 100px;
-      overflow-y: auto;
-    }
-
-    /* Modal de Configuración */
-    .settings-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(15, 23, 42, 0.8);
-      z-index: 1000;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      color: var(--text-main);
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      z-index: 10;
+      transition: var(--transition);
     }
 
-    .settings-content {
-      background-color: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 24px;
+    .carousel-control:hover {
+      background-color: #ffffff;
+      color: var(--primary-color);
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    .carousel-control.prev { left: 16px; }
+    .carousel-control.next { right: 16px; }
+
+    .carousel-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+      color: white;
+      padding: 24px 16px 16px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .carousel-caption {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .carousel-counter {
+      font-size: 0.8rem;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    /* Fallback image style */
+    .image-fallback {
       width: 100%;
-      max-width: 500px;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      height: 100%;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f8f9fa, #e8ecef);
+      padding: 32px;
+      text-align: center;
+      color: var(--text-muted);
     }
 
-    .settings-content h3 {
-      font-size: 20px;
+    .image-fallback-icon {
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      background: #ffffff;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .image-fallback-title {
+      font-size: 0.95rem;
       font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
     }
 
-    .settings-form-group {
+    .image-fallback-desc {
+      font-size: 0.8rem;
+      max-width: 250px;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .image-fallback-path {
+      font-family: monospace;
+      background-color: rgba(0,0,0,0.05);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.725rem;
+      word-break: break-all;
+    }
+
+    /* Team Members CSS */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .member-card {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: var(--transition);
+    }
+
+    .member-card:hover {
+      box-shadow: var(--shadow-sm);
+      border-color: var(--primary-color);
+    }
+
+    .member-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .member-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .member-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .member-role {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .member-contact {
+      font-size: 0.8rem;
+      color: var(--primary-color);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Map Styling */
+    .map-container {
+      width: 100%;
+      height: 480px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Form Styles for settings */
+    .form-group {
+      margin-bottom: 20px;
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
-    .settings-form-group label {
-      font-size: 12px;
+    .form-label {
+      font-size: 0.85rem;
       font-weight: 600;
-      color: var(--text-secondary);
+      color: var(--text-main);
     }
 
-    .settings-input {
+    .form-control {
+      width: 100%;
+      height: 44px;
       padding: 10px 14px;
+      border-radius: var(--radius-sm);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      font-size: 14px;
+      font-family: inherit;
+      font-size: 0.925rem;
       outline: none;
+      transition: var(--transition);
     }
 
-    .settings-input:focus {
-      border-color: var(--accent-color);
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
     }
 
-    .settings-buttons {
+    .form-actions {
       display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 8px;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      height: 44px;
+      padding: 0 24px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.925rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: var(--transition);
+      border: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
     }
 
     .btn-secondary {
-      background: none;
+      background-color: #f1f3f4;
+      color: var(--text-main);
       border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 10px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
     }
 
     .btn-secondary:hover {
-      background-color: var(--border-color);
+      background-color: #e8eaed;
     }
 
-    /* Loading Overlay */
-    .loading-overlay {
+    .btn-danger {
+      background-color: var(--error-color);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #c5221f;
+    }
+
+    /* Loading screen */
+    .loading-screen {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: var(--bg-primary);
-      z-index: 2000;
+      background-color: rgba(248, 249, 250, 0.95);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 16px;
-      transition: opacity 0.3s ease, visibility 0.3s;
+      z-index: 1000;
+      transition: opacity 0.3s ease;
     }
 
     .spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid var(--border-color);
-      border-top-color: var(--accent-color);
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--primary-light);
+      border-top-color: var(--primary-color);
       border-radius: 50%;
-      animation: spin 1s linear infinite;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .loading-text {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-main);
     }
 
-    /* Responsividad */
-    @media (max-width: 1280px) {
-      .diagnostics-grid {
-        grid-template-columns: repeat(2, 1fr);
+    /* Error alert overlay */
+    .error-alert-box {
+      background-color: var(--error-light);
+      border: 1px solid rgba(234, 67, 53, 0.25);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+
+    .error-alert-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--error-color);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .error-alert-body {
+      font-size: 0.925rem;
+      line-height: 1.5;
+    }
+
+    /* RESPONSIVE DESIGN - MEDIA QUERIES */
+
+    /* Desktop y pantallas extra grandes */
+    @media (min-width: 1024px) {
+      .layout-wrapper {
+        grid-template-columns: 260px 1fr;
+      }
+      .sidebar {
+        transform: translateX(0);
+        position: sticky;
       }
     }
 
+    /* Tablets (768px - 1024px) */
     @media (max-width: 1024px) {
-      .sidebar {
-        transform: translateX(-100%);
+      .layout-wrapper {
+        grid-template-columns: 1fr;
       }
       
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 260px;
+        transform: translateX(-100%);
+      }
+
       .sidebar.open {
         transform: translateX(0);
+        box-shadow: var(--shadow-sm);
       }
 
-      .main-content {
-        margin-left: 0;
-        width: 100%;
-        padding: 20px;
-      }
-
-      .hamburger-menu {
+      .menu-toggle {
         display: block;
       }
 
       .kpi-grid {
         grid-template-columns: repeat(2, 1fr);
       }
-
+      
       .dashboard-grid {
         grid-template-columns: 1fr;
       }
 
-      .full-width {
-        grid-column: span 1;
-      }
-
-      .map-container-wrapper {
+      .fichas-layout {
         grid-template-columns: 1fr;
-        height: auto;
-      }
-
-      .map-sidebar {
-        height: 250px;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .map-box {
-        height: 350px;
       }
     }
 
+    /* Móviles (< 768px) */
     @media (max-width: 768px) {
+      .header {
+        padding: 16px 20px;
+      }
+
+      .content-area {
+        padding: 20px;
+      }
+
       .kpi-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
       }
-      
-      .diagnostics-grid {
+
+      .team-grid {
         grid-template-columns: 1fr;
       }
 
-      .header {
+      .log-header-info {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .map-container {
+        height: 350px;
+      }
+
+      .header-right {
+        gap: 8px;
+      }
+
+      .sync-text {
+        display: none;
+      }
+
+      .form-actions {
         flex-direction: column;
-        align-items: flex-start;
       }
-
-      .header-controls {
+      
+      .form-actions .btn {
         width: 100%;
-        justify-content: space-between;
-      }
-
-      .filter-select {
-        flex: 1;
       }
     }
-  </style>
-</head>
-<body data-theme="dark">
 
-  <!-- Loading Screen -->
-  <div class="loading-overlay" id="loadingOverlay">
+    /* Sidebar backdrop para móviles */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 95;
+    }
+
+    .sidebar-backdrop.active {
+      display: block;
+    }
+  </style>
+
+  <!-- ApexCharts CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+
+  <!-- Pantalla de Carga -->
+  <div id="loadingScreen" class="loading-screen">
     <div class="spinner"></div>
-    <h3 style="font-weight:600;">Cargando Dashboard de Inspecciones...</h3>
-    <p style="color:var(--text-secondary);font-size:14px;">Conectando con la base de datos de obras</p>
+    <div id="loadingText" class="loading-text">Conectando con la API de Ortegon...</div>
   </div>
 
-  <div class="app-container">
+  <!-- Backdrop del Sidebar para móviles -->
+  <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+  <div class="layout-wrapper">
     
-    <!-- Sidebar Izquierdo Fijo -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <div class="brand-logo">
-          <i data-lucide="shield-alert"></i>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-container">
+          <i data-lucide="bar-chart-3"></i>
         </div>
-        <div class="brand-text">
-          <h1>INSPECCIONES</h1>
-          <p>Control de Infraestructura</p>
+        <div class="brand-title-container">
+          <h1 class="brand-title">Ortegon API</h1>
+          <span style="font-size: 0.725rem; color: var(--sidebar-text)">Dashboard Edition</span>
         </div>
       </div>
-      
-      <ul class="sidebar-menu">
-        <li class="menu-item active" data-tab="resumen">
-          <button><i data-lucide="layout-dashboard"></i> Resumen General</button>
+
+      <nav class="sidebar-menu">
+        <li class="menu-item active" id="menu-overview">
+          <button onclick="switchView('overview')">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Vista General</span>
+          </button>
         </li>
-        <li class="menu-item" data-tab="mapa">
-          <button><i data-lucide="map"></i> Distribución Geográfica</button>
+        <li class="menu-item" id="menu-fichas">
+          <button onclick="switchView('fichas')">
+            <i data-lucide="clipboard-check"></i>
+            <span>Fichas de Control</span>
+          </button>
         </li>
-        <li class="menu-item" data-tab="diagnosticos">
-          <button><i data-lucide="activity"></i> Diagnósticos y Daños</button>
+        <li class="menu-item" id="menu-mapa">
+          <button onclick="switchView('mapa')">
+            <i data-lucide="map"></i>
+            <span>Ubicación y Mapa</span>
+          </button>
         </li>
-        <li class="menu-item" data-tab="tabla">
-          <button><i data-lucide="table-2"></i> Tabla de Registros</button>
+        <li class="menu-item" id="menu-equipo">
+          <button onclick="switchView('equipo')">
+            <i data-lucide="users"></i>
+            <span>Equipo y Personal</span>
+          </button>
         </li>
-      </ul>
-      
+        <li class="menu-item" id="menu-settings">
+          <button onclick="switchView('settings')">
+            <i data-lucide="settings"></i>
+            <span>Configuración API</span>
+          </button>
+        </li>
+      </nav>
+
       <div class="sidebar-footer">
-        <button class="theme-toggle-btn" id="themeToggleBtn">
-          <i data-lucide="sun"></i> <span>Modo Claro</span>
-        </button>
-        <button class="theme-toggle-btn" id="settingsBtn" style="margin-top:6px;">
-          <i data-lucide="settings"></i> Configurar API
-        </button>
+        <span class="author">Desarrollado con 💙 por</span>
+        <a href="https://fredyortegon.com" target="_blank">fredyortegon.com</a>
       </div>
     </aside>
-    
-    <!-- Contenido Principal -->
-    <main class="main-content">
+
+    <!-- Panel de Contenido -->
+    <main class="main-panel">
       
-      <!-- Cabecera -->
+      <!-- Header -->
       <header class="header">
-        <div style="display:flex;align-items:center;gap:16px;">
-          <button class="hamburger-menu" id="hamburgerMenu" aria-label="Menu">
+        <div class="header-left">
+          <button class="menu-toggle" onclick="toggleSidebar(true)">
             <i data-lucide="menu"></i>
           </button>
-          <div class="header-title">
-            <h2 id="tabTitle">Resumen General</h2>
-            <p id="tabSubtitle">Consolidado general de inspecciones de puentes y taludes</p>
+          <div class="header-title-container">
+            <h2 id="currentViewTitle" class="header-title">Vista General</h2>
+            <span id="lastUpdated" class="header-subtitle">Actualizando datos...</span>
           </div>
         </div>
         
-        <div class="header-controls">
-          <!-- Estado de Conexión -->
-          <div class="connection-status status-api" id="connectionStatusBadge">
-            <div class="pulse-dot"></div>
-            <span id="connectionStatusText">Conectado a la API en vivo</span>
+        <div class="header-right">
+          <div id="projectStatusBadge" class="status-badge en-ejecucion">
+            <span class="status-dot"></span>
+            <span id="projectStatusText">Ejecución</span>
           </div>
           
-          <!-- Filtro de Estado -->
-          <select class="filter-select" id="estadoFilter">
-            <option value="ALL">Todos los Estados</option>
-          </select>
+          <button id="syncBtn" class="sync-btn" onclick="syncData()">
+            <i data-lucide="refresh-cw"></i>
+            <span class="sync-text">Sincronizar</span>
+          </button>
         </div>
       </header>
 
-      <!-- Banner de Alerta de Offline / CDNs Bloqueados -->
-      <div class="alert-banner alert-banner-warning" id="cdnAlertBanner" style="display: none;">
-        <i data-lucide="alert-triangle" style="color: var(--warning-color); flex-shrink: 0; width:20px; height:20px;"></i>
-        <div style="flex: 1;">
-          <h4>Ejecución en modo local sin conexión</h4>
-          <p id="cdnAlertText">El dashboard se cargó con resiliencia offline ya que algunas librerías externas no pudieron descargarse.</p>
-        </div>
-      </div>
-      
-      <!-- KPIs -->
-      <section class="kpi-grid">
-        <!-- KPI 1 -->
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <div>
-              <div class="kpi-title">Total Inspecciones</div>
-              <div class="kpi-value" id="kpiTotal">0</div>
-            </div>
-            <div class="kpi-icon blue">
-              <i data-lucide="clipboard-list"></i>
-            </div>
-          </div>
-          <div class="kpi-sparkline" id="sparklineTotal"></div>
-        </div>
+      <!-- Área de Contenido General -->
+      <div class="content-area">
         
-        <!-- KPI 2 -->
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <div>
-              <div class="kpi-title">Estados Afectados</div>
-              <div class="kpi-value" id="kpiEstados">0</div>
-            </div>
-            <div class="kpi-icon purple">
-              <i data-lucide="map-pin"></i>
-            </div>
+        <!-- Alerta de Errores de API -->
+        <div id="apiErrorAlert" class="error-alert-box" style="display: none;">
+          <div class="error-alert-header">
+            <i data-lucide="alert-triangle"></i>
+            <span>Error de Conexión de API</span>
           </div>
-          <div class="kpi-sparkline" id="sparklineEstados"></div>
-        </div>
-        
-        <!-- KPI 3 -->
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <div>
-              <div class="kpi-title">Estructuras Críticas</div>
-              <div class="kpi-value" id="kpiCriticos">0</div>
-            </div>
-            <div class="kpi-icon amber">
-              <i data-lucide="alert-triangle"></i>
-            </div>
+          <div id="apiErrorBody" class="error-alert-body">
+            No se pudo obtener información de la API. Verifica tu clave de API y URL en la configuración.
           </div>
-          <div class="kpi-sparkline" id="sparklineCriticos"></div>
-        </div>
-        
-        <!-- KPI 4 -->
-        <div class="kpi-card">
-          <div class="kpi-header">
-            <div>
-              <div class="kpi-title">Mapeadas en Mapa</div>
-              <div class="kpi-value" id="kpiMapeo">0%</div>
-            </div>
-            <div class="kpi-icon red">
-              <i data-lucide="navigation"></i>
-            </div>
-          </div>
-          <div class="kpi-sparkline" id="sparklineMapeo"></div>
-        </div>
-      </section>
-      
-      <!-- 1. Pestaña de Resumen -->
-      <div class="tab-panel active" id="tab-resumen">
-        <div class="dashboard-grid">
-          
-          <div class="card-panel">
-            <div class="card-panel-header">
-              <h3>Inspecciones por Estado</h3>
-            </div>
-            <div class="chart-box">
-              <canvas id="chartEstados"></canvas>
-            </div>
-          </div>
-          
-          <div class="card-panel">
-            <div class="card-panel-header">
-              <h3>Severidad de las Estructuras</h3>
-            </div>
-            <div class="chart-box">
-              <canvas id="chartSeveridad"></canvas>
-            </div>
-          </div>
-          
-          <div class="card-panel full-width">
-            <div class="card-panel-header">
-              <h3>Distribución de Tipos de Obra Evaluadas</h3>
-            </div>
-            <div id="treemapObras" style="height:320px;"></div>
-          </div>
-
-          <div class="card-panel full-width">
-            <div class="card-panel-header">
-              <h3>Tipos de Obra por Estado Federal</h3>
-            </div>
-            <div class="chart-box" style="height: 380px;">
-              <canvas id="chartStackedObras"></canvas>
-            </div>
-          </div>
-          
-        </div>
-      </div>
-      
-      <!-- 2. Pestaña de Mapa -->
-      <div class="tab-panel" id="tab-mapa">
-        <div class="map-container-wrapper">
-          <div class="map-sidebar">
-            <div class="map-sidebar-header">
-              <h4>Inspecciones Registradas</h4>
-              <p style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Haz clic en un elemento para enfocar en el mapa</p>
-            </div>
-            <div class="map-sidebar-list" id="mapSidebarList">
-              <!-- Se poblará dinámicamente -->
-            </div>
-          </div>
-          <div class="map-box">
-            <div id="map" style="width:100%;height:100%;"></div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- 3. Pestaña de Diagnósticos -->
-      <div class="tab-panel" id="tab-diagnosticos">
-        <div class="looker-search-bar">
-          <div class="search-input-box">
-            <i data-lucide="search"></i>
-            <input type="text" class="search-input-field" id="diagnosticsSearchInput" placeholder="Filtrar diagnósticos por descripción, vía o daños...">
-          </div>
-          <select class="filter-select" id="diagnosticsSeveridadFilter">
-            <option value="ALL">Todas las Severidades</option>
-            <option value="critico">Severidad: Crítico</option>
-            <option value="moderado">Severidad: Moderado</option>
-            <option value="leve">Severidad: Leve</option>
-          </select>
-        </div>
-        
-        <div class="diagnostics-grid" id="diagnosticsGrid">
-          <!-- Tarjetas de diagnóstico dinámicas -->
-        </div>
-      </div>
-      
-      <!-- 4. Pestaña de Tabla -->
-      <div class="tab-panel" id="tab-tabla">
-        <div class="card-panel">
-          <div class="looker-search-bar">
-            <div class="search-input-box">
-              <i data-lucide="search"></i>
-              <input type="text" class="search-input-field" id="tableSearchInput" placeholder="Buscar en la tabla por código, municipio, descripción...">
-            </div>
-            <button class="btn-action" id="btnExportCSV">
-              <i data-lucide="download"></i> Exportar CSV
+          <div>
+            <button class="btn btn-primary" style="height: 36px; padding: 0 16px; font-size: 0.85rem;" onclick="switchView('settings')">
+              Configurar API
             </button>
           </div>
+        </div>
+
+        <!-- 1. VISTA GENERAL (OVERVIEW) -->
+        <section id="panel-overview" class="view-panel active">
           
-          <div class="table-container">
-            <table id="inspeccionesTable">
-              <thead>
-                <tr>
-                  <th data-sort="N°">N°</th>
-                  <th data-sort="DESCRIPCION">Estructura</th>
-                  <th data-sort="TIPO DE OBRA">Tipo de Obra</th>
-                  <th data-sort="ESTADO">Estado</th>
-                  <th data-sort="MUNICIPIO">Municipio</th>
-                  <th data-sort="VIA">Vía</th>
-                  <th data-sort="SITUACION ACTUAL">Severidad / Situación</th>
-                </tr>
-              </thead>
-              <tbody id="tableBody">
-                <!-- Dinámico -->
-              </tbody>
-            </table>
+          <!-- Fila de KPIs -->
+          <div class="kpi-grid">
+            
+            <div class="kpi-card kpi-progress">
+              <div class="kpi-header">
+                <span class="kpi-title">Avance Físico</span>
+                <div class="kpi-icon-wrapper">
+                  <i data-lucide="trending-up"></i>
+                </div>
+              </div>
+              <div class="kpi-body">
+                <span id="kpiProgressVal" class="kpi-value">0%</span>
+                <span class="kpi-subtitle">Progreso acumulado</span>
+                <div class="progress-bar-container">
+                  <div id="kpiProgressBarFill" class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="kpi-card kpi-workers">
+              <div class="kpi-header">
+                <span class="kpi-title">Trabajadores</span>
+                <div class="kpi-icon-wrapper">
+                  <i data-lucide="users"></i>
+                </div>
+              </div>
+              <div class="kpi-body">
+                <span id="kpiWorkersVal" class="kpi-value">0</span>
+                <span class="kpi-subtitle">Personal activo en campo</span>
+              </div>
+            </div>
+
+            <div class="kpi-card kpi-elapsed">
+              <div class="kpi-header">
+                <span class="kpi-title">Días Transcurridos</span>
+                <div class="kpi-icon-wrapper">
+                  <i data-lucide="calendar"></i>
+                </div>
+              </div>
+              <div class="kpi-body">
+                <span id="kpiElapsedVal" class="kpi-value">0 días</span>
+                <span id="kpiElapsedSub" class="kpi-subtitle">Desde inicio de obra</span>
+              </div>
+            </div>
+
+            <div class="kpi-card kpi-remaining">
+              <div class="kpi-header">
+                <span class="kpi-title">Días Restantes</span>
+                <div class="kpi-icon-wrapper">
+                  <i data-lucide="hourglass"></i>
+                </div>
+              </div>
+              <div class="kpi-body">
+                <span id="kpiRemainingVal" class="kpi-value">0 días</span>
+                <span id="kpiRemainingSub" class="kpi-subtitle">Hasta entrega final</span>
+              </div>
+            </div>
+
           </div>
+
+          <!-- Grid de Gráficos y Detalles -->
+          <div class="dashboard-grid">
+            
+            <!-- Resumen de Obra -->
+            <div class="card">
+              <h3 class="card-title">
+                <i data-lucide="info" style="color: var(--primary-color)"></i>
+                Resumen General de la Obra
+              </h3>
+              
+              <ul class="info-list">
+                <li class="info-item">
+                  <span class="info-label">Nombre del Proyecto</span>
+                  <span id="fieldObraNombre" class="info-value bold-title">Cargando...</span>
+                </li>
+                <li class="info-item">
+                  <span class="info-label">Alcance y Descripción</span>
+                  <span id="fieldObraAlcance" class="info-value">Cargando...</span>
+                </li>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                  <li class="info-item">
+                    <span class="info-label">Estado / Entidad</span>
+                    <span id="fieldObraEstado" class="info-value">Cargando...</span>
+                  </li>
+                  <li class="info-item">
+                    <span class="info-label">Municipio</span>
+                    <span id="fieldObraMunicipio" class="info-value">Cargando...</span>
+                  </li>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                  <li class="info-item">
+                    <span class="info-label">Fecha de Inicio</span>
+                    <span id="fieldObraFechaInicio" class="info-value">Cargando...</span>
+                  </li>
+                  <li class="info-item">
+                    <span class="info-label">Fecha Límite</span>
+                    <span id="fieldObraFechaFin" class="info-value">Cargando...</span>
+                  </li>
+                </div>
+              </ul>
+            </div>
+
+            <!-- Gráfico de Progreso -->
+            <div class="card" style="display: flex; flex-direction: column;">
+              <h3 class="card-title">
+                <i data-lucide="percent" style="color: var(--success-color)"></i>
+                Medidor de Avance Físico
+              </h3>
+              <div class="chart-container-flex">
+                <div id="radialProgressChart"></div>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- 2. FICHAS DE CONTROL -->
+        <section id="panel-fichas" class="view-panel">
           
-          <div class="pagination-bar">
-            <div class="pagination-info" id="paginationInfo">Mostrando 0-0 de 0 registros</div>
-            <div class="pagination-buttons">
-              <button class="btn-pagination" id="btnPrevPage"><i data-lucide="chevron-left"></i> Anterior</button>
-              <button class="btn-pagination" id="btnNextPage">Siguiente <i data-lucide="chevron-right"></i></button>
+          <div class="fichas-layout">
+            
+            <!-- Detalle de Actividades -->
+            <div class="card">
+              <h3 class="card-title">
+                <i data-lucide="clipboard-list" style="color: var(--primary-color)"></i>
+                Ficha Técnica de Control Semanal
+              </h3>
+
+              <div class="log-header-info">
+                <div class="info-item">
+                  <span class="info-label">Identificador Ficha</span>
+                  <span id="fichaLabelID" style="font-weight: 700;">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Período de Reporte</span>
+                  <span id="fichaLabelPeriodo" style="font-weight: 500;">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Fecha Reportada</span>
+                  <span id="fichaLabelFecha" style="font-weight: 500;">-</span>
+                </div>
+              </div>
+
+              <div>
+                <span class="info-label">Actividades Ejecutadas</span>
+                <ul id="activitiesList" class="activities-list">
+                  <!-- Se autogenera con JS -->
+                </ul>
+              </div>
+
+              <div style="margin-top: 24px;">
+                <span class="info-label">Observaciones</span>
+                <p id="fichaObservaciones" style="font-size: 0.9rem; line-height: 1.5; color: var(--text-muted); background-color: #f8f9fa; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-top: 6px;">
+                  -
+                </p>
+              </div>
+            </div>
+
+            <!-- Carrusel de Registro Fotográfico -->
+            <div class="card" style="display: flex; flex-direction: column;">
+              <h3 class="card-title">
+                <i data-lucide="camera" style="color: var(--error-color)"></i>
+                Registro Fotográfico de Campo
+              </h3>
+              
+              <div class="carousel-container">
+                <!-- Se autogenera con JS -->
+                <div id="carouselSlidesContainer" style="width: 100%; height: 100%;">
+                  <div class="image-fallback">
+                    <div class="image-fallback-icon">
+                      <i data-lucide="image-off"></i>
+                    </div>
+                    <span class="image-fallback-title">Sin imágenes cargadas</span>
+                    <span class="image-fallback-desc">Haz clic en Sincronizar para conectar con la API.</span>
+                  </div>
+                </div>
+                
+                <button class="carousel-control prev" onclick="slideCarousel(-1)">
+                  <i data-lucide="chevron-left"></i>
+                </button>
+                <button class="carousel-control next" onclick="slideCarousel(1)">
+                  <i data-lucide="chevron-right"></i>
+                </button>
+              </div>
+
+              <div style="margin-top: 16px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+                <p><strong>Nota sobre imágenes locales:</strong> Esta API devuelve nombres de archivo relativos guardados por AppSheet en Google Drive. Si alojas la carpeta <code>Fotos_Images</code> al lado de este archivo HTML, las imágenes reales se cargarán inmediatamente.</p>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- 3. MAPA Y UBICACIÓN -->
+        <section id="panel-mapa" class="view-panel">
+          
+          <div class="card">
+            <h3 class="card-title">
+              <i data-lucide="map-pinned" style="color: var(--primary-color)"></i>
+              Ubicación Geográfica de la Obra
+            </h3>
+            
+            <div class="map-container">
+              <div id="map"></div>
+            </div>
+
+            <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+              <div class="info-item">
+                <span class="info-label">Sector / Km</span>
+                <span class="info-value">Km 59, Autopista Gran Mariscal de Ayacucho</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Ubicación Relativa</span>
+                <span class="info-value">Zona Kempis, Municipio Zamora, Miranda</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Coordenadas del Mapa</span>
+                <span class="info-value">10.3950° N, 66.4060° W (Aprox. Kempis)</span>
+              </div>
             </div>
           </div>
-        </div>
+
+        </section>
+
+
+        <!-- 4. EQUIPO Y PERSONAL -->
+        <section id="panel-equipo" class="view-panel">
+          
+          <!-- Contratista -->
+          <div class="card">
+            <h3 class="card-title">
+              <i data-lucide="building-2" style="color: var(--primary-color)"></i>
+              Empresa Contratista
+            </h3>
+            <div style="display: flex; align-items: center; gap: 20px;">
+              <div style="width: 64px; height: 64px; background-color: var(--primary-light); color: var(--primary-color); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="hard-hat" style="width: 32px; height: 32px;"></i>
+              </div>
+              <div style="display: flex; flex-direction: column;">
+                <span id="fieldEmpresaNombre" style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">-</span>
+                <span id="fieldEmpresaID" style="font-size: 0.85rem; color: var(--text-muted); font-family: monospace; margin-top: 2px;">ID: -</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal de Inspección y Residencia -->
+          <div class="card">
+            <h3 class="card-title">
+              <i data-lucide="users-round" style="color: var(--success-color)"></i>
+              Personal Profesional Designado
+            </h3>
+
+            <div class="team-grid">
+              
+              <div class="member-card">
+                <div class="member-avatar">
+                  <i data-lucide="user-cog" style="width: 28px; height: 28px;"></i>
+                </div>
+                <div class="member-info">
+                  <span id="residenteName" class="member-name">-</span>
+                  <span class="member-role">Ingeniero Residente (CONTRATISTA)</span>
+                  <span class="member-contact">
+                    <i data-lucide="phone" style="width: 14px; height: 14px;"></i>
+                    <span id="residentePhone">Sin teléfono</span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="member-card">
+                <div class="member-avatar" style="background-color: var(--success-light); color: var(--success-color);">
+                  <i data-lucide="user-check" style="width: 28px; height: 28px;"></i>
+                </div>
+                <div class="member-info">
+                  <span id="inspectorName" class="member-name">-</span>
+                  <span class="member-role">Ingeniero Inspector (ENTE PROMOTOR)</span>
+                  <span class="member-contact">
+                    <i data-lucide="phone" style="width: 14px; height: 14px;"></i>
+                    <span id="inspectorPhone">Sin teléfono</span>
+                  </span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- 5. CONFIGURACIÓN API -->
+        <section id="panel-settings" class="view-panel">
+          
+          <div class="card">
+            <h3 class="card-title">
+              <i data-lucide="settings-2" style="color: var(--primary-color)"></i>
+              Configuración de la API del Proyecto
+            </h3>
+            
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">
+              Puedes modificar los parámetros de la API si has desplegado tu propio script de Google Apps Script. Estos parámetros se guardan de forma segura en el almacenamiento local (<code>localStorage</code>) de tu navegador.
+            </p>
+
+            <form id="apiConfigForm" onsubmit="saveApiSettings(event)">
+              <div class="form-group">
+                <label for="apiUrlInput" class="form-label">URL de Implementación (Web App de Google Apps Script)</label>
+                <input type="url" id="apiUrlInput" class="form-control" placeholder="https://script.google.com/macros/s/.../exec" required>
+              </div>
+
+              <div class="form-group">
+                <label for="apiKeyInput" class="form-label">API Key de Seguridad</label>
+                <input type="text" id="apiKeyInput" class="form-control" placeholder="Tu API Key" required>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                  <i data-lucide="save"></i>
+                  Guardar y Conectar
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="restoreDefaultApiSettings()">
+                  <i data-lucide="rotate-ccw"></i>
+                  Restaurar Valores por Defecto
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </section>
+
       </div>
 
     </main>
+
   </div>
 
-  <!-- Modal de Configuración de API -->
-  <div class="settings-modal" id="settingsModal">
-    <div class="settings-content">
-      <h3>Configurar API Ortegon</h3>
-      <p style="font-size:13px;color:var(--text-secondary);">Ingresa la URL y clave de tu Google Sheet. Los cambios se guardarán localmente.</p>
-      
-      <div class="settings-form-group">
-        <label for="inputApiUrl">URL del Apps Script</label>
-        <input type="text" class="settings-input" id="inputApiUrl" placeholder="https://script.google.com/macros/s/.../exec">
-      </div>
-      
-      <div class="settings-form-group">
-        <label for="inputApiKey">API Key</label>
-        <input type="password" class="settings-input" id="inputApiKey" placeholder="Ingresa tu clave secreta">
-      </div>
-      
-      <div class="settings-buttons">
-        <button class="btn-secondary" id="btnCancelSettings">Cancelar</button>
-        <button class="btn-action" id="btnSaveSettings">Guardar y Recargar</button>
-      </div>
-    </div>
-  </div>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- MapLibre GL JS -->
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 
+  <!-- Lógica de Negocio y Conexión de API (JavaScript) -->
   <script>
-    // DATOS DE RESPALDO (REALES - 23 REGISTROS)
-    const FALLBACK_DATA = [
-      {
-        "N°": 1,
-        "DESCRIPCION": "PÓRTICO UBICADO EN LA AUTOPISTA VALLE COCHE",
-        "TIPO DE OBRA": "COLUMNA DE CONCRETO",
-        "ESTADO": "DISTRITO CAPITAL",
-        "MUNICIPIO": "LIBERTADOR",
-        "PARROQUIA": "SAN PEDRO",
-        "VIA": "VIADUCTO VALLE COCHE",
-        "COORDENADA": "10.486804168934684, -66.88844644259137",
-        "SITUACION ACTUAL": "COLAPSO DE COLUMNA POR TERREMOTO",
-        "ACCIONES": "Demolición y colocación de placa base superior e inferior Colocación de suplemento perfil HEA400 Colocación de elementos de redundancia y GROUT de alta resistencia"
-      },
-      {
-        "N°": 2,
-        "DESCRIPCION": "PUENTE 9 DE DICIEMBRE",
-        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO",
-        "ESTADO": "DISTRITO CAPITAL",
-        "MUNICIPIO": "LIBERTADOR",
-        "PARROQUIA": "PARAISO",
-        "VIA": "PUENTE 9 DE DICIEMBRE QUE CONECTA PARAISO CON SAN MARTIN",
-        "COORDENADA": "10.48725044479518, -66.93964514986253",
-        "SITUACION ACTUAL": "Deterioro de la carpeta asfáltica con presencia de fallas y baches, desniveles, tanquilla de servicio con deterioro que representa un riesgo de seguridad al peatón",
-        "ACCIONES": "Mantenimiento correctivo, para evitar fallas .\n Rehabilitación del pavimento flexible, recuperando la cota original del mismo, los bombeos para garantizar el drenaje superficial\n Reparar el concreto alrededor de la tanquilla de servicio que esta en la acera\n Reparar tanquillas eléctricas , colocándoles las tapas\n Nivelar el pavimento en las rampas de acceso\n Evaluar condiciones de la parte inferior de la losa del puente que tiene el acero descubierto y reparar de acuerdo a los resultados, contemplando restituir el gálibo vertical"
-      },
-      {
-        "N°": 3,
-        "DESCRIPCION": "DISTRIBUIDOR AV BARALT",
-        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO, VIGAS ENCAJONADAS",
-        "ESTADO": "DISTRITO CAPITAL",
-        "MUNICIPIO": "LIBERTADOR",
-        "PARROQUIA": "SANTA TERESA",
-        "VIA": "ELEVADO QUE CONECTA QUINTQ CRESPO CON EL PARAISO",
-        "COORDENADA": "10.491963248897282, -66.92062428108532",
-        "SITUACION ACTUAL": "Daño en la losa inferior de las viga cajón del puente, por impacto vehicular, debido a la disminución del gálibo vertical, daño en juntas de dilatación, drenaje superficial",
-        "ACCIONES": "Mantenimiento correctivo.\n Determinar la acción a tomar para la corrección del daño en la losa inferior del puente afectada por los impactos vehiculares\n Verificar función del acero lateral saliente por el lateral de la viga\n Evaluar manchas por escurrimiento del agua\n Recuperar el gálibo vertical y colocar señalización de altura máxima permitida\n Corregir las juntas de dilatación.\n Recuperar el drenaje superficial del puente\n Destapar las tanquillas de drenaje\n Rehabilitar las tanquillas eléctricas\n Reparar las barandas de concreto del puente\n Realizar Demarcación y Señalización"
-      },
-      {
-        "N°": 4,
-        "DESCRIPCION": "PUENTE SANTANDER",
-        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO CON VIGAS METALICAS",
-        "ESTADO": "DISTRITO CAPITAL",
-        "MUNICIPIO": "LIBERTADOR",
-        "PARROQUIA": "PARAISO",
-        "VIA": "PUENTE QUE CONECTA EL PARAISO CON SAN MARTIN",
-        "COORDENADA": "10.491176729853755, -66.93483983626513",
-        "SITUACION ACTUAL": "Deterioro de la carpeta asfáltica, hurto de y falta de Barandas que incide en la seguridad del peatón juntas de dilatación deterioradas",
-        "ACCIONES": "Se requiere realizar un mantenimiento correctivo, para evitar fallas que impidan el uso del mismo.\n Reposición de tubería de Barandas, ya que representa un riesgo alto a la seguridad del peatón\n Rehabilitación del pavimento flexible, recuperando la cota original del mismo, los bombeos para garantizar el drenaje superficial\n Rehabilitar las juntas de dilatación del puente.\n Destapar las tanquillas de drenaje y reparar tapas\n Reponer tapas en tanquillas de servicios y limpiar tanquillas\n Reparar tanquillas eléctricas, limpiándolas, verificando la existencia de conducción eléctrica y colocándoles las tapas\n Evaluar estado de las pilas que tienen el acero descubierto para determinar la falla y la solución correspondiente \n Evaluar manchas por escurrimiento del agua\n Reponer tapas de bocas de visita\n Realizar mantenimiento preventivo a la estructura metálica del puente\n Realizar Demarcación y Señalización"
-      },
-      {
-        "N°": 1,
-        "DESCRIPCION": "FALLA DE BORDE",
-        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
-        "ESTADO": "LA GUAIRA",
-        "MUNICIPIO": "VARGAS",
-        "PARROQUIA": "CARAYACA",
-        "VIA": "CARAYACA EL JUNQUITO KM 18",
-        "COORDENADA": "",
-        "SITUACION ACTUAL": "Funcionado el paso solo para un vehículo, mientras el derrumbe no se incremente.",
-        "ACCIONES": "Realizar estudio geotécnico para el diseño optimo de las fundaciones y análisis de estabilización del talud. \n Instalación inmediata de señalizaciones para delimitar el canal de la vialidad. \n Limpieza de cunetas y desmalezamiento 100 metros en ambos sentidos, \n Desvió provisional de la escorrentía superficial para evitar que el agua baje por la falla y minimizar saturación. \n Intervención inmediata para evitar el colapso de la vialidad e incomunicación hacia carayaca por esa vía.\n Reparación del extremo colapsado del muro de gaviones"
-      },
-      {
-        "N°": 2,
-        "DESCRIPCION": "PUENTE CARABALLEDA NORTE PUENTE CARABALLEDA SUR Y PUENTE OSORIO",
-        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO CON VIGAS POSTENSADAS, PUENTE DE CONCRETO ARMADO, PUENTE DE VIGAS POSTENSADAS RESPECTIVAMENTE",
-        "ESTADO": "LA GUAIRA",
-        "MUNICIPIO": "VARGAS",
-        "PARROQUIA": "CARABALLEDA",
-        "VIA": "AV. JOSE MARIA ESPAÑA Y AV. LA COSTANERA RESPECTIVAMENTE",
-        "COORDENADA": "10.618166861170675, -66.85155843345635",
-        "SITUACION ACTUAL": "DESPLAZAMIENTO POR TABLEROS DEL PUENTE POR TERROTO, DAÑO EN JUNTAS, FRACTURA DE ACERAS , DAÑO DE PAVIMENTO. EN CASO DEL PUENTE CARABALLEDA SUR FALLA EN LA PILA CENTRAL, HECHA DE MURO CICLOPEO.",
-        "ACCIONES": "DEL PUENTE OSORIO SE HIZO REHABILITACION DE ACERAS, DEFENSAS, ASFALTADO DE RAMPA DE ENTRADA Y SALIDA, SE INSTALARON BARANDAS , LIMPIEZA DE CAUCE. PUENTE CARABALLEDA NORTE SE COLOCO BARANDAS Y ASFALTADO DE RAMPA DE ENTRADA Y SALIDA. PUENTE CARABALLEDA SUR, SE DEJO FUERA DE SERVICIO. QUEDA PENDIENTE PARA AMBOS PUENTES REVISAR LA OPCION DE LLEVAR EL TABLERO A SU EJE ORIGINAL. POR CONTRATAR PROYECTO PARA SOLUCION DE VIGA DESPLAZADA QUE QUEDO SIN SOPORTE UN AREA ."
-      },
-      {
-        "N°": 1,
-        "DESCRIPCION": "PUENTE METALICO EL ROSAL",
-        "TIPO DE OBRA": "PUENTE METALICO",
-        "ESTADO": "MIRANDA",
-        "MUNICIPIO": "CHACAO BARUTA",
-        "PARROQUIA": "PARROQUIA CHACAO Y PARROQUIA NUESTRA SEÑORA DEL ROSARIO DE BARUTA",
-        "VIA": "PUENTE QUE CONECTA LA PARROQUIA NUESTRA SEÑORA DEL ROSARIO DE BARUTA CON PARROQUIA CHACAO",
-        "COORDENADA": "10° 29′ 12″ N\n  66° 51′ 39″ W",
-        "SITUACION ACTUAL": "No se aprecian problemas estructurales, desplazamiento del borde superior del ala Sur",
-        "ACCIONES": "SE DESMANTELO PARA SU MEJOR USO A CAUSA DEL TERREMOTO"
-      },
-      {
-        "N°": 2,
-        "DESCRIPCION": "PUENTE ANDRES GALLARRAGA",
-        "TIPO DE OBRA": "PUENTE DE CONCRETO VIGAS POSTENSADAS",
-        "ESTADO": "MIRANDA",
-        "MUNICIPIO": "CHACAO BARUTA",
-        "PARROQUIA": "CHACAO",
-        "VIA": "AV. ANDRES GALARRAGA",
-        "COORDENADA": "Distribuidor Ciempies, sobre la Av Andres Galarraga\n 10° 29′ 05″ N\n 66° 51′ 27″ W",
-        "SITUACION ACTUAL": "Deterioro físico en algunas vigas con perdida significativa de la sección del concreto, producto del impacto de la carga pesada, dejando expuestos los ductos de postensado.",
-        "ACCIONES": "BAJAR LA RASANTE DE LA VIA INFERIOR PARA RESOLVER EL GALIBO VERTICAL REPARACION ESTRUCTURAL E REPARACION DEL DAÑO REALIZAR TOPOGRAFIA , DISEÑO GEOMETRICO VIAL, ESTUDIO GEOGRAFICO, ESTUDIO HIDROLOGICO Y DE LOS SERVICIOS PUBLICOS."
-      },
-      {
-        "N°": 3,
-        "DESCRIPCION": "PUENTE EL ROSARIO",
-        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO",
-        "ESTADO": "MIRANDA",
-        "MUNICIPIO": "PAZ CASTILLO",
-        "PARROQUIA": "SANTA LUCIA",
-        "VIA": "CARRETERA SOAPIRE SANTA LUCIA",
-        "COORDENADA": "Santa Lucía del Tuy, Municipio Paz Castillo\n 10°18'16.9\"N \n 66°39'28.1\"W",
-        "SITUACION ACTUAL": "En el Estribo Derecho: La migración lateral del cauce hacia este sector destruyó por completo los muros protectores. Esto dejó expuesto un porcentaje significativo del fuste del sistema de fundaciones (pilotes),",
-        "ACCIONES": "1. Fase I (Estudios): Análisis hidrológico de crecidas y estudio geomorfológico del comportamiento del cauce. \n 2. Fase II (Modelación): Simulación hidráulica bidimensional y análisis de socavación en estribos mediante metodología HEC-18. \n 3. Fase III (Diseño): Ingeniería de detalle para protección del estribo derecho, redireccionamiento del flujo y estabilización del terraplén. \n 4. Fase IV (Proyecto): Entrega de Memoria de Cálculo, planos, especificaciones y cómputos métricos."
-      },
-      {
-        "N°": 4,
-        "DESCRIPCION": "PUENTE EL PARAISO",
-        "TIPO DE OBRA": "PUENTE METALICO",
-        "ESTADO": "MIRANDA",
-        "MUNICIPIO": "PAZ CASTILLO",
-        "PARROQUIA": "SANTA LUCIA",
-        "VIA": "CARRETERA PETARE SANTA LUCIA LOCAL 9",
-        "COORDENADA": "Santa Lucía del Tuy, Municipio Paz Castillo\n 10°18'16.9\"N \n 66°39'28.1\"W",
-        "SITUACION ACTUAL": "DETERIORO GENERALIZADO DEL PUENTE PROBLEMA EN SUS PUNTOS DE APOYO",
-        "ACCIONES": "EN ESPERA DE INFORME DEL ESPECIALISTA"
-      },
-      {
-        "N°": 5,
-        "DESCRIPCION": "FALLA DE BORDE SECTOR BARRIALES GUAREMAL",
-        "TIPO DE OBRA": "ESTABILIZACION DE TALUD Y REPARACION DE VIALIDAD",
-        "ESTADO": "MIRANDA",
-        "MUNICIPIO": "GUAICAIPURO",
-        "PARROQUIA": "LOS TEQUES",
-        "VIA": "VIA PRINCIPAL DE GUAREMAL",
-        "COORDENADA": "10°18'42.6\"N 67°02'29.6\"W",
-        "SITUACION ACTUAL": "Vía fuera de servicio para tránsito vehicular por ruptura de tanquilla. Afecta a más de 5,000 habitantes.",
-        "ACCIONES": "Desmalezamiento y levantamiento topográfico detallado del talud.\n Estabilización de la ladera mediante el uso de maquinaria pesada (tipo Jumbo) para realizar un corte longitudinal preventivo a una altura aproximada de 18 metros a fin de evitar mayores movimientos de masa en períodos de lluvias.\n Reparación del muro de protección, reconstrucción del sistema de alcantarillado y colocación de defensa peatonal."
-      },
-      {
-        "N°": 6,
-        "DESCRIPCION": "FALLA DE BORDE CARRETERA VIEJA LOS TEQUES CARACAS SECTOR LA CURVA LA CAPILLA",
-        "TIPO DE OBRA": "ESTABILIZACION DE TALUD Y REPARACION DE VIALIDAD",
-        "ESTADO": "MIRANDA",
-        "MUNICIPIO": "CARRIZAL",
-        "PARROQUIA": "",
-        "VIA": "CARRETERA VIEJA LOS TEQUES CARACAS",
-        "COORDENADA": "10°22'51.0\"N 67°01'42.0\"W",
-        "SITUACION ACTUAL": "Derrumbe de cunetas y defensas por colapso de drenajes aguas abajo. Tránsito pesado constante. Riesgo latente.",
-        "ACCIONES": "Demarcación y desmalezamiento inmediato del área de peligro.\n Ejecución de levantamiento topográfico y evaluación por especialista de suelos para la estabilización integral del talud.\n Reparación de la capacidad hidráulica de la alcantarilla y posterior restitución de la carpeta asfáltica."
-      },
-      {
-        "N°": 1,
-        "DESCRIPCION": "PUENTE LAS TEJERIAS",
-        "TIPO DE OBRA": "PUENTE DE CONCRETO",
-        "ESTADO": "ARAGUA",
-        "MUNICIPIO": "SANTOS MICHELENA",
-        "PARROQUIA": "SANTOS MICHELENA",
-        "VIA": "CARRETERA PANAMERICANA TRONCAL 1",
-        "COORDENADA": "Carretera Las Tejerias 10°15'7.57\"N \n 67°11'3.12\"W",
-        "SITUACION ACTUAL": "Pérdida de vigas de apoyo por impacto. Gálibo reducido a 4.50m. Flexión severa de losa (~25cm). Requiere proyecto urgente.",
-        "ACCIONES": "1. Levantamiento topográfico de precisión para definir cotas y establecer la altura exacta de las vigas que se van a reponer\n 2.Desarrollo de Proyecto de Ingeniería Básica y de Detalle de :\n Proyecto de realineamiento de vía y Diseño del pavimento. \n Proyecto de adecuación del sistema de drenaje del punto bajo vial. \n Proyecto de reacondicionamiento del sistema estructural del puente."
-      },
-      {
-        "N°": 2,
-        "DESCRIPCION": "FALLA DE BORDE SECTOR LA ESTACIÓN",
-        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
-        "ESTADO": "ARAGUA",
-        "MUNICIPIO": "SANTOS MICHELENA",
-        "PARROQUIA": "SANTOS MICHELENA",
-        "VIA": "CARRETERA PANAMERICANA TRONCAL 1",
-        "COORDENADA": "Carretera Panamericana Sector La Estación 10°15'16.7\"N 67°10'42.3\"W",
-        "SITUACION ACTUAL": "Socavación por colapso del sistema de alcantarillado. Afectación de calzada. Riesgo de aislamiento comunitario",
-        "ACCIONES": "Limpieza, desmalezamiento y demarcación de seguridad de forma inmediata.\n Realizar levantamiento topográfico y diagnóstico estructural del alcantarillado.\n Ejecutar un estudio geotécnico de suelos para el diseño y construcción de un muro de protección, reposición de la carpeta asfáltica, cunetas y defensas viales."
-      },
-      {
-        "N°": 3,
-        "DESCRIPCION": "DESLIZAMIENTO KM 42 PANAMERICANA",
-        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
-        "ESTADO": "ARAGUA",
-        "MUNICIPIO": "SANTOS MICHELENA",
-        "PARROQUIA": "SANTOS MICHELENA",
-        "VIA": "CARRETERA PANAMERICANA TRONCAL 1",
-        "COORDENADA": "16.76318, -93.18676",
-        "SITUACION ACTUAL": "Obstaculización parcial de canal (sentido Los Teques - Tejerías) en una longitud de 20 metros. Requiere remoción.",
-        "ACCIONES": "Despliegue de maquinaria pesada para la remoción y bote inmediato del material proveniente del derrumbe.\n Una vez liberada la calzada, evaluar el estado estructural de las cunetas y realizar reparaciones menores de la carpeta asfáltica en los puntos de impacto."
-      },
-      {
-        "N°": 4,
-        "DESCRIPCION": "FALLA DE BORDE SECTOR TEJERIAS CARRETERA EL JUNQUITO COLONIA TOVAR",
-        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
-        "ESTADO": "ARAGUA",
-        "MUNICIPIO": "TOVAR",
-        "PARROQUIA": "COLONIA TOVAR",
-        "VIA": "CARRETERA EL JUNQUITO COLONIA TOVAR",
-        "COORDENADA": "Carretera El Junquito Colonia Tovar 10°24'50.0\"N 67°16'23.9\"W",
-        "SITUACION ACTUAL": "Desprendimiento parcial de calzada por socavación de alcantarillado. Impacto crítico en turismo y agricultura.",
-        "ACCIONES": "Demarcación urgente del área y desmalezamiento.\n Levantamiento topográfico integral y sondeo hidráulico del colector.\n Construcción de muro de protección aguas abajo, reposición de aceras, cunetas, defensas viales y carpeta de rodamiento."
-      },
-      {
-        "N°": 5,
-        "DESCRIPCION": "PUENTES GEMELOS EN LA AUTOPISTA REGIONAL DEL CENTRO, KM 117",
-        "TIPO DE OBRA": "PUENTES DE CONCRETO",
-        "ESTADO": "ARAGUA",
-        "MUNICIPIO": "GIRARDOT",
-        "PARROQUIA": "LOS TACARIGUAS",
-        "VIA": "Autopista Regional de Centro Km 117 Troncal 1 Maracay",
-        "COORDENADA": "10°15'11.7\"N 67°37'47.6\"W",
-        "SITUACION ACTUAL": "Grietas en apoyos de las 4 caras. Muestras de humedad y calcificaciones. Reparación necesaria DE URGENCIA",
-        "ACCIONES": "Mitigación Inmediata (Control de Riesgos)\n Eliminar raíces con herbicidas químicos (sin vibraciones).\n Instrumentar y medir la evolución de las fisuras de forma inmediata.\n Demoler el pedestal dañado y sellar las filtraciones al terraplén.\n Refuerzo Definitivo (Opciones)\n A: Inyectar resina epóxica y envolver con fibra de carbono. (Ventaja: recupera fuerza sin sumar peso).\n B: Encamisado tradicional con concreto proyectado (shotcrete).\n C: Inyectar resinas geopoliméricas para compactar y estabilizar el suelo."
-      },
-      {
-        "N°": 1,
-        "DESCRIPCION": "PUENTE LOS COLORADOS",
-        "TIPO DE OBRA": "PUENTE METALICO",
-        "ESTADO": "COJEDES",
-        "MUNICIPIO": "SAN CARLOS",
-        "PARROQUIA": "SAN CARLOS",
-        "VIA": "TRONCAL 5 CONECTA COJEDES CON PORTUGUESA",
-        "COORDENADA": "Troncal 15 Via San Carlos Portuguesa -9°21′ 00″ N , 63°19′ 00″ W",
-        "SITUACION ACTUAL": "Estructura Metálica: avanzado estado de corrosión\n Tablero y Calzada: desprendimiento del concreto y acero expuesto y daño en las juntas de dilatación.",
-        "ACCIONES": "Preparación de superficie y aplicación de pintura.\n Reposición de barandas e infraestructura de vigas deterioradas Reposición de la señalización vial y del sistema de iluminacion Reposición del concreto junto al acero del tablero en la parte inferior del puente Mantenimiento a las juntas de dilatación. \n Reposición de tramos dañados, colocación de barandas de seguridad y reforzamiento general de la pasarela peatonal adosada.\n Mantener un seguimiento continuo a la evolución del terreno socavado y, de manera preventiva, realizar un estudio del comportamiento del río Tirgua"
-      },
-      {
-        "N°": 2,
-        "DESCRIPCION": "FALLA DE BORDE SECTOR LOS COLORADOS",
-        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
-        "ESTADO": "COJEDES",
-        "MUNICIPIO": "SAN CARLOS",
-        "PARROQUIA": "SAN CARLOS",
-        "VIA": "TRONCAL 5 CONECTA COJEDES CON PORTUGUESA",
-        "COORDENADA": "Troncal 15 Via San Carlos Portuguesa 9° 39′ 34,56″N , 68° 36′ 17,56″ W",
-        "SITUACION ACTUAL": "Derrumbe del talud en tres (3) partes y sistema de drenaje obstruido",
-        "ACCIONES": "Reparación del talud afectado, con 320 m3 de material de relleno tipo granzón .\n Construcción de sistema de estabilización de taludes con gaviones escalonados a lo largo de la falla.\n Limpieza y mantenimiento del sistema general de drenaje."
-      },
-      {
-        "N°": 1,
-        "DESCRIPCION": "PUENTE MAÑONGO",
-        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO",
-        "ESTADO": "CARABOBO",
-        "MUNICIPIO": "VALENCIA",
-        "PARROQUIA": "SAN JOSE",
-        "VIA": "AUTOPISTA VALENCIA PUERTO CABELLO. TRONCAL 1",
-        "COORDENADA": "Autopista Valencia Puerto Cabello 10°14′ 02,42″ N , 68°00′ 05,44″ W",
-        "SITUACION ACTUAL": "Desplazamiento de la junta de dilatación.\n Agrietamiento de pavimento",
-        "ACCIONES": "Planificar y ejecutar la reparación integral de las juntas de dilatación en el sentido Puerto Cabello - Valencia, interviniendo de forma prioritaria los tramos correspondientes a la entrada y salida del puente."
-      },
-      {
-        "N°": 2,
-        "DESCRIPCION": "PUENTE RETOBO",
-        "TIPO DE OBRA": "PUENTE DE CONCRETO ARMADO",
-        "ESTADO": "CARABOBO",
-        "MUNICIPIO": "NAGUA NAGUA",
-        "PARROQUIA": "NAGUA NAGUA",
-        "VIA": "AUTOPISTA VALENCIA PUERTO CABELLO. TRONCAL 1",
-        "COORDENADA": "Autopista Valencia Puerto Cabello 10° 16′ 38,40″ N , 68° 01′ 18,66″ W",
-        "SITUACION ACTUAL": "Socavación parcial de baja magnitud por la acción del río en las bases del puente.",
-        "ACCIONES": "Reparar las socavaciones presentes generadas por la acción del río en los elementos de fundación.\n Para mayor seguridad gestionar la evaluación técnica de las estructuras con la participación directa de un especialista en el área de ingeniería de puentes."
-      },
-      {
-        "N°": 3,
-        "DESCRIPCION": "FALLA DE BORDE CURVA BELLORIN BEJUMA",
-        "TIPO DE OBRA": "ESTABILIZACION DE TALUD",
-        "ESTADO": "CARABOBO",
-        "MUNICIPIO": "VALENCIA",
-        "PARROQUIA": "BEJUMA",
-        "VIA": "VIA PANAMERICANA VALENCIA BEJUMA",
-        "COORDENADA": "Sector Curva Bellorín Bejuma 10° 10′ 04,99″N , 68° 13′ 07,07″ W",
-        "SITUACION ACTUAL": "Hundimiento de la calzada Derrumbe del talud de soporte.\n Cierre parcial de la vía.",
-        "ACCIONES": "Reparación del talud afectado a través de la evaluación de un especialista.\n Reasfaltado total.\n Iluminación y señalización integral."
-      },
-      {
-        "N°": 4,
-        "DESCRIPCION": "DISTRIBUIDOR REDOMA PALMA SOLA MORON",
-        "TIPO DE OBRA": "RESTITUCION DE VIA POR DETERIORO DE CARPETA DE RODAMIENTO CON GRIETAS HORIZONTALES Y DESPLAZAMIENTO VERTICAL DEL TALUD TRAMO REDOMA MORÓN VIA TUCACAS",
-        "ESTADO": "CARABOBO",
-        "MUNICIPIO": "JUAN JOSE MORA",
-        "PARROQUIA": "MORON",
-        "VIA": "VIA CARABOBO FALCON TRONCAL 1",
-        "COORDENADA": "Carretera Morón-Coro (Troncal 3), sector Redoma de Morón, límite entre los estados Carabobo y Falcón, Venezuela 10° 30' 12,67\" N 68° 11' 15,32\" O",
-        "SITUACION ACTUAL": "Agrietamiento en el pavimento.\n Pérdida de estabilidad y soporte del talud.\n Cierre de la vía",
-        "ACCIONES": "Perforaciones Calicatas, SPT, estudio topográfico y evaluación y levantamiento del sistema de drenaje para su rehabilitación. Contratación de una empresa con maquinaria y equipos adecuados para realizar los trabajos correspondientes"
-      }
-    ];
+    // Variables por defecto de la API
+    const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbxXbYBQi_lKoDAhiSBL5QWCS8IknVOSQnNtb_L1cFgKxwml91o4nnCa2HWXabvq6oX9/exec";
+    const DEFAULT_API_KEY = "pon-tu-clave-segura-aqui";
 
-    // Variables de Estado del Dashboard
-    let appData = [];
-    let filteredData = [];
-    let currentTab = "resumen";
-    let activeCharts = {};
-    let activeApexCharts = {};
+    // Variables de Estado de la Aplicación
+    let apiURL = localStorage.getItem("ORTEGON_API_URL") || DEFAULT_API_URL;
+    let apiKey = localStorage.getItem("ORTEGON_API_KEY") || DEFAULT_API_KEY;
+
+    let dashboardData = {
+      obras: [],
+      fichas: [],
+      ingenieros: [],
+      empresas: [],
+      fotos: []
+    };
+
+    let activeCarouselIndex = 0;
     let mapInstance = null;
-    let mapMarkers = [];
-    let currentSortColumn = "N°";
-    let currentSortOrder = "asc";
-    
-    // Si la API URL guardada en localStorage no coincide con la actual, limpiamos la memoria para forzar la nueva por defecto
-    const CURRENT_API_URL = "https://script.google.com/macros/s/AKfycbx1vmBIiiKz4IpSDUeJE3x46qAFAyYl8V3kCEZtF1ExX8QIqQYb-rADtPVhAwZR0nmkaQ/exec";
-    if (localStorage.getItem("api_url") && localStorage.getItem("api_url") !== CURRENT_API_URL) {
-      localStorage.removeItem("api_url");
-      localStorage.removeItem("api_key");
-    }
+    let radialChartInstance = null;
 
-    // Configuración por Defecto
-    let API_URL = localStorage.getItem("api_url") || CURRENT_API_URL;
-    let API_KEY = localStorage.getItem("api_key") || "pon-tu-clave-segura-aqui";
+    // Al cargar la página
+    window.addEventListener("DOMContentLoaded", () => {
+      // Iniciar inputs de configuración con los valores activos
+      document.getElementById("apiUrlInput").value = apiURL;
+      document.getElementById("apiKeyInput").value = apiKey;
 
+      // Inicializar iconos de Lucide
+      lucide.createIcons();
 
-
-
-    // Paginación
-    let currentPage = 1;
-    const rowsPerPage = 10;
-
-    // Inicialización al cargar la página
-    document.addEventListener("DOMContentLoaded", async () => {
-      try {
-        safeCreateIcons();
-        initTheme();
-        initMenu();
-        initFilters();
-        initSettings();
-        checkCDNs();
-        await loadDashboardData();
-      } catch (err) {
-        console.error("Error durante la inicialización del dashboard:", err);
-      } finally {
-        hideLoadingScreen();
-      }
+      // Cargar datos
+      syncData();
     });
 
-    // Validar si los CDNs cargaron
-    function checkCDNs() {
-      const missingLibs = [];
-      if (typeof lucide === 'undefined') missingLibs.push("Iconos (Lucide)");
-      if (typeof Chart === 'undefined') missingLibs.push("Gráficos (Chart.js)");
-      if (typeof ApexCharts === 'undefined') missingLibs.push("Gráficos avanzados (ApexCharts)");
-      if (typeof maplibregl === 'undefined') missingLibs.push("Mapas (MapLibre GL)");
-      
-      if (missingLibs.length > 0) {
-        const banner = document.getElementById("cdnAlertBanner");
-        if (banner) {
-          banner.style.display = "flex";
-          document.getElementById("cdnAlertText").textContent = 
-            `El dashboard se está ejecutando de forma local/offline. No se pudieron cargar las siguientes librerías de internet: ${missingLibs.join(", ")}. Algunas funciones visuales estarán limitadas.`;
-        }
-      }
-    }
+    // Cambiar entre secciones del dashboard
+    function switchView(viewName) {
+      // Remover active de todos los paneles
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".sidebar-menu .menu-item").forEach(m => m.classList.remove("active"));
 
-    function safeCreateIcons() {
-      if (typeof lucide !== 'undefined') {
-        try {
-          lucide.createIcons();
-        } catch (e) {
-          console.warn("Error creando iconos de Lucide:", e);
-        }
-      }
-    }
+      // Activar panel seleccionado
+      const targetPanel = document.getElementById(`panel-${viewName}`);
+      if (targetPanel) targetPanel.classList.add("active");
 
-    function hideLoadingScreen() {
-      const overlay = document.getElementById("loadingOverlay");
-      if (overlay) {
-        overlay.style.opacity = "0";
+      // Activar menú correspondiente
+      const targetMenu = document.getElementById(`menu-${viewName}`);
+      if (targetMenu) targetMenu.classList.add("active");
+
+      // Cambiar título del Header
+      const viewTitleMap = {
+        'overview': 'Vista General',
+        'fichas': 'Fichas de Control Semanal',
+        'mapa': 'Ubicación y Mapa',
+        'equipo': 'Equipo y Personal Profesional',
+        'settings': 'Configuración de la API'
+      };
+      document.getElementById("currentViewTitle").innerText = viewTitleMap[viewName] || 'Dashboard';
+
+      // Cerrar sidebar en móviles tras clickear
+      toggleSidebar(false);
+
+      // Si se cambia a la vista del mapa, redimensionar para asegurar render correcto
+      if (viewName === 'mapa' && mapInstance) {
         setTimeout(() => {
-          overlay.style.visibility = "hidden";
-        }, 300);
+          mapInstance.resize();
+        }, 150);
       }
     }
 
-    // Buscador flexible de cabeceras en filas de Google Sheets (insensible a acentos, mayúsculas y espacios)
-    function getRowValueByCleanKey(row, keyToFind) {
-      if (!row) return undefined;
-      const cleanKey = keyToFind.toLowerCase()
-                               .normalize("NFD")
-                               .replace(/[\u0300-\u036f]/g, "")
-                               .replace(/[^a-z0-9]/g, "");
-      
-      for (let k in row) {
-        const cleanK = k.toLowerCase()
-                        .normalize("NFD")
-                        .replace(/[\u0300-\u036f]/g, "")
-                        .replace(/[^a-z0-9]/g, "");
-        if (cleanK === cleanKey) {
-          return row[k];
-        }
-      }
-      return undefined;
-    }
-
-    // Normalizar fila de datos con llaves uniformes
-    function normalizeRow(item) {
-      return {
-        "N°": getRowValueByCleanKey(item, "N°") || getRowValueByCleanKey(item, "num") || getRowValueByCleanKey(item, "numero") || "",
-        "DESCRIPCION": getRowValueByCleanKey(item, "descripcion") || getRowValueByCleanKey(item, "descripción") || "",
-        "TIPO DE OBRA": getRowValueByCleanKey(item, "tipo de obra") || getRowValueByCleanKey(item, "tipodeobra") || "",
-        "ESTADO": getRowValueByCleanKey(item, "estado") || "",
-        "MUNICIPIO": getRowValueByCleanKey(item, "municipio") || "",
-        "PARROQUIA": getRowValueByCleanKey(item, "parroquia") || "",
-        "VIA": getRowValueByCleanKey(item, "via") || getRowValueByCleanKey(item, "vía") || "",
-        "COORDENADA": getRowValueByCleanKey(item, "coordenada") || getRowValueByCleanKey(item, "coordenadas") || "",
-        "SITUACION ACTUAL": getRowValueByCleanKey(item, "situacion actual") || getRowValueByCleanKey(item, "situación actual") || "",
-        "ACCIONES": getRowValueByCleanKey(item, "acciones") || ""
-      };
-    }
-
-    // Tema Claro / Oscuro
-    function initTheme() {
-      const themeToggleBtn = document.getElementById("themeToggleBtn");
-      const savedTheme = localStorage.getItem("theme") || "dark";
-      document.body.setAttribute("data-theme", savedTheme);
-      updateThemeBtnUI(savedTheme);
-
-      themeToggleBtn.addEventListener("click", () => {
-        const currentTheme = document.body.getAttribute("data-theme");
-        const newTheme = currentTheme === "dark" ? "light" : "dark";
-        document.body.setAttribute("data-theme", newTheme);
-        localStorage.setItem("theme", newTheme);
-        updateThemeBtnUI(newTheme);
-        renderCharts();
-      });
-    }
-
-    function updateThemeBtnUI(theme) {
-      const btnSpan = document.querySelector("#themeToggleBtn span");
-      const themeToggleBtn = document.getElementById("themeToggleBtn");
-      if (!themeToggleBtn) return;
-
-      // Recrear el elemento <i> para que Lucide lo reemplace limpiamente
-      let btnIcon = themeToggleBtn.querySelector("i") || themeToggleBtn.querySelector("svg");
-      if (btnIcon) {
-        btnIcon.remove();
-      }
-      
-      const newIcon = document.createElement("i");
-      newIcon.setAttribute("data-lucide", theme === "dark" ? "sun" : "moon");
-      themeToggleBtn.insertBefore(newIcon, btnSpan);
-
-      if (btnSpan) {
-        btnSpan.textContent = theme === "dark" ? "Modo Claro" : "Modo Oscuro";
-      }
-
-      safeCreateIcons();
-    }
-
-
-    // Menú de Navegación Lateral (Tabs)
-    function initMenu() {
-      const menuItems = document.querySelectorAll(".menu-item");
-      const tabTitle = document.getElementById("tabTitle");
-      const tabSubtitle = document.getElementById("tabSubtitle");
+    // Toggle Sidebar en móvil
+    function toggleSidebar(open) {
       const sidebar = document.getElementById("sidebar");
-      const hamburgerMenu = document.getElementById("hamburgerMenu");
-
-      const subtitles = {
-        resumen: "Consolidado general de inspecciones de puentes y taludes",
-        mapa: "Ubicación geográfica interactiva de estructuras e informes",
-        diagnosticos: "Detalle pormenorizado de patologías estructurales y acciones",
-        tabla: "Explorador de datos tabular estilo Looker Studio con filtros"
-      };
-
-      menuItems.forEach(item => {
-        item.addEventListener("click", () => {
-          menuItems.forEach(i => i.classList.remove("active"));
-          item.classList.add("active");
-          
-          currentTab = item.getAttribute("data-tab");
-          tabTitle.textContent = item.querySelector("button").textContent.trim();
-          tabSubtitle.textContent = subtitles[currentTab] || "";
-
-          // Mostrar/Ocultar paneles
-          document.querySelectorAll(".tab-panel").forEach(panel => {
-            if (panel.id === `tab-${currentTab}`) {
-              panel.classList.add("active");
-            } else {
-              panel.classList.remove("active");
-            }
-          });
-
-          // Inicializar o redimensionar mapa al abrir pestaña
-          if (currentTab === "mapa") {
-            setTimeout(initMaplibreMap, 100);
-          }
-
-          // Renderizar gráficos si se vuelve a resumen (ajustar responsividad)
-          if (currentTab === "resumen") {
-            renderCharts();
-          }
-
-          // Cerrar menú móvil
-          sidebar.classList.remove("open");
-        });
-      });
-
-      if (hamburgerMenu) {
-        hamburgerMenu.addEventListener("click", (e) => {
-          e.stopPropagation();
-          sidebar.classList.toggle("open");
-        });
-      }
-
-      document.addEventListener("click", (e) => {
-        if (window.innerWidth <= 1024 && sidebar && !sidebar.contains(e.target) && hamburgerMenu && !hamburgerMenu.contains(e.target)) {
-          sidebar.classList.remove("open");
-        }
-      });
-    }
-
-    // Modal de Configuración
-    function initSettings() {
-      const settingsBtn = document.getElementById("settingsBtn");
-      const settingsModal = document.getElementById("settingsModal");
-      const btnCancelSettings = document.getElementById("btnCancelSettings");
-      const btnSaveSettings = document.getElementById("btnSaveSettings");
-      const inputApiUrl = document.getElementById("inputApiUrl");
-      const inputApiKey = document.getElementById("inputApiKey");
-
-      if (settingsBtn) {
-        settingsBtn.addEventListener("click", () => {
-          inputApiUrl.value = API_URL;
-          inputApiKey.value = API_KEY;
-          settingsModal.style.display = "flex";
-        });
-      }
-
-      if (btnCancelSettings) {
-        btnCancelSettings.addEventListener("click", () => {
-          settingsModal.style.display = "none";
-        });
-      }
-
-      if (btnSaveSettings) {
-        btnSaveSettings.addEventListener("click", async () => {
-          const urlVal = inputApiUrl.value.trim();
-          const keyVal = inputApiKey.value.trim();
-          if (!urlVal || !keyVal) {
-            alert("Por favor llena ambos campos.");
-            return;
-          }
-
-          localStorage.setItem("api_url", urlVal);
-          localStorage.setItem("api_key", keyVal);
-          API_URL = urlVal;
-          API_KEY = keyVal;
-
-          settingsModal.style.display = "none";
-          const overlay = document.getElementById("loadingOverlay");
-          if (overlay) {
-            overlay.style.visibility = "visible";
-            overlay.style.opacity = "1";
-          }
-          
-          await loadDashboardData();
-          hideLoadingScreen();
-        });
+      const backdrop = document.getElementById("sidebarBackdrop");
+      if (open) {
+        sidebar.classList.add("open");
+        backdrop.classList.add("active");
+      } else {
+        sidebar.classList.remove("open");
+        backdrop.classList.remove("active");
       }
     }
 
-    // Conversión robusta de coordenadas DMS (Grados, Minutos, Segundos) a Decimales
-    function parseDMSCoordinate(coordStr) {
-      if (!coordStr) return null;
-      coordStr = coordStr.replace(/[\r\n]/g, " ").trim();
+    // Descargar datos en paralelo desde la API de Apps Script
+    async function syncData() {
+      showLoading(true, "Conectando con la API de Google Sheets...");
+      hideApiError();
 
-      // Intento 1: Decimal simple (ej. "10.4868, -66.8884")
-      const decRegex = /(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/;
-      const decMatch = coordStr.match(decRegex);
-      if (decMatch) {
-        return {
-          lat: parseFloat(decMatch[1]),
-          lng: parseFloat(decMatch[2])
-        };
-      }
-
-      // Helper para convertir DMS en decimal
-      function convertDMSToDecimal(dmsValStr) {
-        dmsValStr = dmsValStr.replace(/′|’|`/g, "'").replace(/″|”|''/g, '"').replace(/,/g, '.');
-        
-        const regex = /(\d+)\s*°\s*(\d+)\s*'\s*(\d+(?:\.\d+)?)\s*"\s*([NSEOWOó])/i;
-        const match = dmsValStr.match(regex);
-        if (!match) return null;
-
-        const deg = parseFloat(match[1]);
-        const min = parseFloat(match[2]);
-        const sec = parseFloat(match[3]);
-        const dir = match[4].toUpperCase();
-
-        let decimal = deg + (min / 60) + (sec / 3600);
-        if (dir === 'S' || dir === 'W' || dir === 'O') {
-          decimal = -decimal;
-        }
-        return decimal;
-      }
-
-      const cleanStr = coordStr.replace(/′|’|`/g, "'").replace(/″|”|''/g, '"').replace(/,/g, '.');
-      const dmsBlockRegex = /(\d+\s*°\s*\d+\s*'\s*[\d.]+\s*"\s*[NSEOWOó])/gi;
-      const matches = cleanStr.match(dmsBlockRegex);
-
-      if (matches && matches.length >= 2) {
-        const lat = convertDMSToDecimal(matches[0]);
-        const lng = convertDMSToDecimal(matches[1]);
-        if (lat !== null && lng !== null) {
-          return { lat, lng };
-        }
-      }
-
-      return null;
-    }
-
-    // Clasificación Semántica de Severidad
-    function getSeverityClass(situacion) {
-      if (!situacion) return { label: "Leve / En Observación", class: "leve", color: "#10b981", val: 1 };
-      const text = situacion.toLowerCase();
-      
-      const criticalKeywords = [
-        "colapso", "terremoto", "urgente", "fuera de servicio", "mitigación inmediata", 
-        "desprendimiento parcial", "flexión severa", "pérdida de vigas", "socavación por colapso", 
-        "aislamiento", "alto riesgo", "grave", "crítico", "inmediato", "derrumbe"
-      ];
-
-      const moderateKeywords = [
-        "deterioro", "daño", "socavación", "grietas", "fisuras", "humedad", 
-        "agrietamiento", "desplazamiento", "falla de borde", "hundimiento", "borde superior", "corrosión"
-      ];
-
-      for (let key of criticalKeywords) {
-        if (text.includes(key)) {
-          return { label: "Crítico", class: "critico", color: "#ef4444", val: 3 };
-        }
-      }
-
-      for (let key of moderateKeywords) {
-        if (text.includes(key)) {
-          return { label: "Moderado", class: "moderado", color: "#f59e0b", val: 2 };
-        }
-      }
-
-      return { label: "Leve / En Observación", class: "leve", color: "#10b981", val: 1 };
-    }
-
-    // Carga de Datos (API o Fallback)
-    async function loadDashboardData() {
-      const badge = document.getElementById("connectionStatusBadge");
-      const badgeText = document.getElementById("connectionStatusText");
+      const syncBtn = document.getElementById("syncBtn");
+      syncBtn.classList.add("spinning");
 
       try {
-        console.log("Intentando conectar con la API Ortegon...");
-        const url = `${API_URL}?key=${API_KEY}&action=data&sheet=INSPECCIONES`;
+        const sheetsToFetch = ["Obras", "Fichas", "Ingenieros", "Empresas", "Fotos"];
+        const fetchPromises = sheetsToFetch.map(sheet => fetchSheetData(sheet));
         
-        let res;
-        if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
-          res = await fetch(url, { signal: AbortSignal.timeout(6000) });
-        } else {
-          res = await fetch(url);
-        }
+        const results = await Promise.all(fetchPromises);
+
+        // Guardar en objeto global
+        dashboardData.obras = results[0];
+        dashboardData.fichas = results[1];
+        dashboardData.ingenieros = results[2];
+        dashboardData.empresas = results[3];
+        dashboardData.fotos = results[4];
+
+        console.log("Datos cargados correctamente:", dashboardData);
+
+        // Procesar y Renderizar
+        renderDashboard();
         
-        const json = await res.json();
-        
-        if (json.success && json.data && json.data.length > 0) {
-          console.log("Datos de la API descargados con éxito.");
-          appData = cleanRawData(json.data);
-          
-          if (badge) {
-            badge.className = "connection-status status-api";
-            badgeText.textContent = "Conectado a la API en vivo";
-          }
-        } else {
-          throw new Error("Respuesta inválida de la API");
-        }
-      } catch (error) {
-        console.warn("Fallo de conexión o API inactiva. Usando respaldo local.", error);
-        appData = cleanRawData(FALLBACK_DATA);
-        
-        if (badge) {
-          badge.className = "connection-status status-fallback";
-          badgeText.textContent = "Usando datos locales de respaldo";
-        }
-      }
-
-      // Procesar datos
-      processExtendedFields();
-      populateFilterOptions();
-      
-      // Aplicar filtros e inicializar UI
-      applyFilters();
-    }
-
-    // Limpieza y normalización de Filas
-    function cleanRawData(data) {
-      return data
-        .map(normalizeRow)
-        .filter(item => item["DESCRIPCION"] && String(item["DESCRIPCION"]).trim() !== "");
-    }
-
-    // Campos procesados en memoria (Coordenadas y Severidad)
-    function processExtendedFields() {
-      appData.forEach(item => {
-        item.coordsParsed = parseDMSCoordinate(item["COORDENADA"]);
-        item.severityInfo = getSeverityClass(item["SITUACION ACTUAL"]);
-      });
-    }
-
-    // Poblar Selector de Opciones de Filtro
-    function populateFilterOptions() {
-      const estadoFilter = document.getElementById("estadoFilter");
-      if (!estadoFilter) return;
-      
-      const estados = [...new Set(appData.map(item => item["ESTADO"]))].sort();
-      
-      estadoFilter.innerHTML = '<option value="ALL">Todos los Estados</option>';
-      estados.forEach(est => {
-        if (est && String(est).trim() !== "") {
-          const opt = document.createElement("option");
-          opt.value = est;
-          opt.textContent = est;
-          estadoFilter.appendChild(opt);
-        }
-      });
-    }
-
-    // Inicializar listeners de filtros
-    function initFilters() {
-      const estadoFilter = document.getElementById("estadoFilter");
-      if (estadoFilter) {
-        estadoFilter.addEventListener("change", () => {
-          applyFilters();
-        });
-      }
-
-      // Búsqueda en la Tabla
-      const tableSearch = document.getElementById("tableSearchInput");
-      if (tableSearch) {
-        tableSearch.addEventListener("input", () => {
-          currentPage = 1;
-          applyFilters();
-        });
-      }
-
-      // Búsqueda en Diagnósticos
-      const diagSearch = document.getElementById("diagnosticsSearchInput");
-      if (diagSearch) {
-        diagSearch.addEventListener("input", () => {
-          applyFilters();
-        });
-      }
-
-      const diagSeverity = document.getElementById("diagnosticsSeveridadFilter");
-      if (diagSeverity) {
-        diagSeverity.addEventListener("change", () => {
-          applyFilters();
-        });
-      }
-
-      // Exportar CSV
-      const btnExport = document.getElementById("btnExportCSV");
-      if (btnExport) {
-        btnExport.addEventListener("click", () => {
-          exportToCSV();
-        });
-      }
-
-      // Ordenar Columnas Tabla
-      const headers = document.querySelectorAll("#inspeccionesTable th");
-      headers.forEach(h => {
-        h.addEventListener("click", () => {
-          const col = h.getAttribute("data-sort");
-          if (col) {
-            if (currentSortColumn === col) {
-              currentSortOrder = currentSortOrder === "asc" ? "desc" : "asc";
-            } else {
-              currentSortColumn = col;
-              currentSortOrder = "asc";
-            }
-            applyFilters();
-          }
-        });
-      });
-
-      // Botones de Paginación
-      const btnPrev = document.getElementById("btnPrevPage");
-      if (btnPrev) {
-        btnPrev.addEventListener("click", () => {
-          if (currentPage > 1) {
-            currentPage--;
-            renderTable();
-          }
-        });
-      }
-
-      const btnNext = document.getElementById("btnNextPage");
-      if (btnNext) {
-        btnNext.addEventListener("click", () => {
-          const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-          if (currentPage < totalPages) {
-            currentPage++;
-            renderTable();
-          }
-        });
+        // Actualizar etiqueta de sincronización
+        const now = new Date();
+        document.getElementById("lastUpdated").innerText = `Última sincronización: hoy a las ${now.toLocaleTimeString()}`;
+      } catch (err) {
+        console.error("Error al sincronizar datos:", err);
+        showApiError(err.message);
+      } finally {
+        syncBtn.classList.remove("spinning");
+        showLoading(false);
       }
     }
 
-    // Filtrar y Ordenar Datos
-    function applyFilters() {
-      const estadoFilter = document.getElementById("estadoFilter");
-      const selectedEstado = estadoFilter ? estadoFilter.value : "ALL";
-      
-      const tableSearch = document.getElementById("tableSearchInput");
-      const searchTableVal = tableSearch ? tableSearch.value.toLowerCase() : "";
-      
-      const diagSearch = document.getElementById("diagnosticsSearchInput");
-      const searchDiagVal = diagSearch ? diagSearch.value.toLowerCase() : "";
-      
-      const diagSeverity = document.getElementById("diagnosticsSeveridadFilter");
-      const selectedSeverity = diagSeverity ? diagSeverity.value : "ALL";
-
-      filteredData = appData.filter(item => {
-        if (selectedEstado !== "ALL" && item["ESTADO"] !== selectedEstado) return false;
-
-        if (currentTab === "tabla") {
-          if (searchTableVal !== "") {
-            const matchesSearch = 
-              (item["DESCRIPCION"] && item["DESCRIPCION"].toLowerCase().includes(searchTableVal)) ||
-              (item["TIPO DE OBRA"] && item["TIPO DE OBRA"].toLowerCase().includes(searchTableVal)) ||
-              (item["MUNICIPIO"] && item["MUNICIPIO"].toLowerCase().includes(searchTableVal)) ||
-              (item["VIA"] && item["VIA"].toLowerCase().includes(searchTableVal)) ||
-              (item["SITUACION ACTUAL"] && item["SITUACION ACTUAL"].toLowerCase().includes(searchTableVal));
-            if (!matchesSearch) return false;
-          }
-        }
-
-        if (currentTab === "diagnosticos") {
-          if (selectedSeverity !== "ALL" && item.severityInfo.class !== selectedSeverity) return false;
-          if (searchDiagVal !== "") {
-            const matchesSearch = 
-              (item["DESCRIPCION"] && item["DESCRIPCION"].toLowerCase().includes(searchDiagVal)) ||
-              (item["VIA"] && item["VIA"].toLowerCase().includes(searchDiagVal)) ||
-              (item["SITUACION ACTUAL"] && item["SITUACION ACTUAL"].toLowerCase().includes(searchDiagVal)) ||
-              (item["ACCIONES"] && item["ACCIONES"].toLowerCase().includes(searchDiagVal));
-            if (!matchesSearch) return false;
-          }
-        }
-
-        return true;
-      });
-
-      sortData();
-
-      // Renderizar UI
-      updateKPIs();
-      renderCharts();
-      renderMapAndSidebar();
-      renderDiagnosticsGrid();
-      renderTable();
+    // Llamada fetch individual a un sheet
+    async function fetchSheetData(sheetName) {
+      const url = `${apiURL}?key=${encodeURIComponent(apiKey)}&action=data&sheet=${encodeURIComponent(sheetName)}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Error HTTP ${response.status} al cargar la hoja ${sheetName}`);
+      }
+      const json = await response.json();
+      if (!json.success) {
+        throw new Error(json.error || `Error desconocido en la hoja ${sheetName}`);
+      }
+      return json.data || [];
     }
 
-    function sortData() {
-      filteredData.sort((a, b) => {
-        let valA = a[currentSortColumn];
-        let valB = b[currentSortColumn];
+    // Renderizar todas las vistas con los datos cargados
+    function renderDashboard() {
+      // 1. Obtener registro primario de Obra y Ficha
+      const obra = dashboardData.obras[0];
+      const ficha = dashboardData.fichas[0];
 
-        if (currentSortColumn === "N°") {
-          valA = parseInt(valA) || 0;
-          valB = parseInt(valB) || 0;
-        } else {
-          valA = String(valA || "").toLowerCase();
-          valB = String(valB || "").toLowerCase();
-        }
-
-        if (valA < valB) return currentSortOrder === "asc" ? -1 : 1;
-        if (valA > valB) return currentSortOrder === "asc" ? 1 : -1;
-        return 0;
-      });
-    }
-
-    // Actualizar KPIs
-    function updateKPIs() {
-      const total = filteredData.length;
-      const uniqueStates = new Set(filteredData.map(item => item["ESTADO"])).size;
-      const criticalCount = filteredData.filter(item => item.severityInfo.class === "critico").length;
-      
-      const mappedCount = filteredData.filter(item => item.coordsParsed !== null).length;
-      const mappingRate = total > 0 ? Math.round((mappedCount / total) * 100) : 0;
-
-      const kpiTotalEl = document.getElementById("kpiTotal");
-      if (kpiTotalEl) kpiTotalEl.textContent = total;
-      
-      const kpiEstadosEl = document.getElementById("kpiEstados");
-      if (kpiEstadosEl) kpiEstadosEl.textContent = uniqueStates;
-      
-      const kpiCriticosEl = document.getElementById("kpiCriticos");
-      if (kpiCriticosEl) kpiCriticosEl.textContent = criticalCount;
-      
-      const kpiMapeoEl = document.getElementById("kpiMapeo");
-      if (kpiMapeoEl) kpiMapeoEl.textContent = `${mappingRate}%`;
-
-      // Sparklines (ApexCharts)
-      if (typeof ApexCharts !== 'undefined') {
-        const statesDistribution = getStatesDistribution(filteredData);
-        const stateCounts = statesDistribution.map(s => s.count);
-        
-        while (stateCounts.length < 5) {
-          stateCounts.unshift(0);
-        }
-
-        renderSparkline("sparklineTotal", stateCounts, "#3b82f6");
-        renderSparkline("sparklineEstados", [1, uniqueStates, uniqueStates + 1, uniqueStates, uniqueStates], "#8b5cf6");
-        renderSparkline("sparklineCriticos", filteredData.map(item => item.severityInfo.val), "#f59e0b");
-        
-        const mappedTrend = filteredData.map(item => item.coordsParsed ? 100 : 0);
-        renderSparkline("sparklineMapeo", mappedTrend.slice(0, 10), "#ef4444");
-      }
-    }
-
-    function renderSparkline(id, data, color) {
-      if (typeof ApexCharts === 'undefined') return;
-      
-      if (activeApexCharts[id]) {
-        try {
-          activeApexCharts[id].destroy();
-        } catch (e) {
-          console.warn("Error destruyendo sparkline:", e);
-        }
-      }
-
-      const options = {
-        series: [{ data: data }],
-        chart: {
-          type: 'line',
-          width: '100%',
-          height: 45,
-          sparkline: { enabled: true }
-        },
-        stroke: {
-          curve: 'smooth',
-          width: 3
-        },
-        colors: [color],
-        tooltip: { enabled: false }
-      };
-
-      const container = document.getElementById(id);
-      if (container) {
-        try {
-          activeApexCharts[id] = new ApexCharts(container, options);
-          activeApexCharts[id].render();
-        } catch (e) {
-          console.warn("Error renderizando sparkline:", e);
-        }
-      }
-    }
-
-    function getStatesDistribution(data) {
-      const counts = {};
-      data.forEach(item => {
-        counts[item["ESTADO"]] = (counts[item["ESTADO"]] || 0) + 1;
-      });
-      return Object.keys(counts).map(key => ({
-        state: key,
-        count: counts[key]
-      })).sort((a,b) => b.count - a.count);
-    }
-
-    // Renderizar Gráficos
-    function renderCharts() {
-      const isDark = document.body.getAttribute("data-theme") !== "light";
-      const textColor = isDark ? "#94a3b8" : "#64748b";
-      const gridColor = isDark ? "#334155" : "#e2e8f0";
-
-      if (activeCharts.estados) activeCharts.estados.destroy();
-      if (activeCharts.severidad) activeCharts.severidad.destroy();
-      if (activeCharts.stacked) activeCharts.stacked.destroy();
-      if (activeApexCharts.treemap) activeApexCharts.treemap.destroy();
-
-      // --- Chart 1: Cantidad de Inspecciones por Estado (Horizontal Bar) ---
-      const statesDist = getStatesDistribution(filteredData);
-      const canvas1 = document.getElementById("chartEstados");
-      if (canvas1 && typeof Chart !== 'undefined') {
-        const ctx1 = canvas1.getContext("2d");
-        activeCharts.estados = new Chart(ctx1, {
-          type: 'bar',
-          data: {
-            labels: statesDist.map(s => s.state),
-            datasets: [{
-              label: 'Inspecciones',
-              data: statesDist.map(s => s.count),
-              backgroundColor: '#3b82f6',
-              borderRadius: 6
-            }]
-          },
-          options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { grid: { color: gridColor }, ticks: { color: textColor } },
-              y: { grid: { display: false }, ticks: { color: textColor } }
-            }
-          }
-        });
-      }
-
-      // --- Chart 2: Severidad de las Estructuras (Donut) ---
-      const severityCounts = { critico: 0, moderado: 0, leve: 0 };
-      filteredData.forEach(item => {
-        severityCounts[item.severityInfo.class]++;
-      });
-
-      const canvas2 = document.getElementById("chartSeveridad");
-      if (canvas2 && typeof Chart !== 'undefined') {
-        const ctx2 = canvas2.getContext("2d");
-        activeCharts.severidad = new Chart(ctx2, {
-          type: 'doughnut',
-          data: {
-            labels: ['Crítico', 'Moderado', 'Leve / Estable'],
-            datasets: [{
-              data: [severityCounts.critico, severityCounts.moderado, severityCounts.leve],
-              backgroundColor: ['#ef4444', '#f59e0b', '#10b981'],
-              borderColor: isDark ? '#1e293b' : '#ffffff',
-              borderWidth: 2
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'right',
-                labels: { color: textColor, font: { family: 'Inter' } }
-              }
-            },
-            cutout: '60%'
-          }
-        });
-      }
-
-      // --- Chart 3: Distribución de Obras (ApexCharts Treemap) ---
-      const obraCounts = {};
-      filteredData.forEach(item => {
-        obraCounts[item["TIPO DE OBRA"]] = (obraCounts[item["TIPO DE OBRA"]] || 0) + 1;
-      });
-
-      const seriesData = Object.keys(obraCounts).map(key => ({
-        x: key,
-        y: obraCounts[key]
-      }));
-
-      const treemapOptions = {
-        series: [{ data: seriesData }],
-        chart: {
-          height: 320,
-          type: 'treemap',
-          background: 'transparent',
-          toolbar: { show: false }
-        },
-        colors: ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899', '#06b6d4'],
-        theme: { mode: isDark ? 'dark' : 'light' },
-        plotOptions: {
-          treemap: {
-            enableShades: true,
-            shadeIntensity: 0.5
-          }
-        }
-      };
-
-      const treemapContainer = document.getElementById("treemapObras");
-      if (treemapContainer && typeof ApexCharts !== 'undefined') {
-        activeApexCharts.treemap = new ApexCharts(treemapContainer, treemapOptions);
-        activeApexCharts.treemap.render();
-      }
-
-      // --- Chart 4: Tipos de Obra por Estado (Stacked Bar Chart) ---
-      const allObras = [...new Set(filteredData.map(item => item["TIPO DE OBRA"]))];
-      const allStates = statesDist.map(s => s.state);
-
-      const datasets = allObras.map((obra, idx) => {
-        const colorPalette = [
-          '#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', 
-          '#06b6d4', '#ec4899', '#14b8a6', '#f97316', '#6366f1'
-        ];
-        const dataForStates = allStates.map(state => {
-          return filteredData.filter(item => item["ESTADO"] === state && item["TIPO DE OBRA"] === obra).length;
-        });
-
-        return {
-          label: obra,
-          data: dataForStates,
-          backgroundColor: colorPalette[idx % colorPalette.length],
-          stack: 'Stack 0'
-        };
-      });
-
-      const canvas4 = document.getElementById("chartStackedObras");
-      if (canvas4 && typeof Chart !== 'undefined') {
-        const ctx4 = canvas4.getContext("2d");
-        activeCharts.stacked = new Chart(ctx4, {
-          type: 'bar',
-          data: {
-            labels: allStates,
-            datasets: datasets
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'top',
-                labels: { color: textColor, boxWidth: 12, font: { size: 11 } }
-              }
-            },
-            scales: {
-              x: { stacked: true, grid: { display: false }, ticks: { color: textColor } },
-              y: { stacked: true, grid: { color: gridColor }, ticks: { color: textColor } }
-            }
-          }
-        });
-      }
-    }
-
-    // Inicializar y Renderizar Mapa (MapLibre GL JS)
-    function initMaplibreMap() {
-      if (typeof maplibregl === 'undefined') {
-        console.warn("MapLibre GL JS no está cargado.");
-        const mapContainer = document.getElementById("map");
-        if (mapContainer) {
-          mapContainer.innerHTML = `
-            <div style="padding:40px; text-align:center; color:var(--text-secondary); display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:12px;">
-              <i data-lucide="map-off" style="width:48px; height:48px; color:var(--danger-color);"></i>
-              <h4>El mapa no pudo cargarse</h4>
-              <p style="font-size:12px; max-width:300px; line-height:1.4;">Por favor verifica tu conexión a internet o si los servicios CDN están bloqueados en tu navegador.</p>
-            </div>
-          `;
-          safeCreateIcons();
-        }
+      if (!obra) {
+        showApiError("La hoja 'Obras' está vacía o no tiene registros válidos.");
         return;
       }
-      
-      if (mapInstance) return;
 
-      const initialCenter = [-66.9036, 10.4806];
+      // 2. Calcular días transcurridos y restantes
+      const dateStart = new Date(obra.ObraFechaInicio);
+      const dateEnd = new Date(obra.ObraFechaFin);
+      const dateToday = new Date(); // Fecha actual real
+
+      // Días totales planificados
+      const totalDays = Math.max(1, Math.floor((dateEnd - dateStart) / (1000 * 60 * 60 * 24)));
+      // Días transcurridos (límite superior: totalDays)
+      let elapsedDays = Math.floor((dateToday - dateStart) / (1000 * 60 * 60 * 24));
+      elapsedDays = Math.min(totalDays, Math.max(0, elapsedDays));
+      // Días restantes (límite inferior: 0)
+      let remainingDays = Math.floor((dateEnd - dateToday) / (1000 * 60 * 60 * 24));
+      remainingDays = Math.max(0, remainingDays);
+
+      // 3. Obtener el progreso físico acumulado (desde Ficha o Obra)
+      // Si la ficha tiene FichaPorcentajeAcumulado, lo usamos. Si no, 0.
+      const progressDecimal = ficha ? parseFloat(ficha.FichaPorcentajeAcumulado) : 0;
+      const progressPercent = Math.round(progressDecimal * 10000) / 100; // Ej: 57.65
+
+      // 4. Actualizar KPIs de la Vista General
+      document.getElementById("kpiProgressVal").innerText = `${progressPercent}%`;
+      document.getElementById("kpiProgressBarFill").style.width = `${progressPercent}%`;
+      
+      document.getElementById("kpiWorkersVal").innerText = ficha ? ficha.FichaNumeroTrabajadores : 0;
+      
+      document.getElementById("kpiElapsedVal").innerText = `${elapsedDays} días`;
+      document.getElementById("kpiElapsedSub").innerText = `Inicio: ${formatDate(obra.ObraFechaInicio)}`;
+      
+      document.getElementById("kpiRemainingVal").innerText = `${remainingDays} días`;
+      document.getElementById("kpiRemainingSub").innerText = `Límite: ${formatDate(obra.ObraFechaFin)}`;
+
+      // 5. Configurar Badge de Estado en el Header
+      document.getElementById("projectStatusText").innerText = obra.ObraEstatus || "EN EJECUCION";
+      
+      // 6. Rellenar Datos Textuales en Vista General
+      document.getElementById("fieldObraNombre").innerText = obra.ObraNombre;
+      document.getElementById("fieldObraAlcance").innerText = obra.ObraAlcance || "CONSTRUCCIÓN DE MURO ALETA FUNDADO SOBRE MICROPILOTES Y ANCLAJES PASIVOS PARA REPARACIÓN DE FALLA DE BORDE EN KM 59.";
+      document.getElementById("fieldObraEstado").innerText = obra.ObraEstado;
+      document.getElementById("fieldObraMunicipio").innerText = obra.ObraMunicipio;
+      document.getElementById("fieldObraFechaInicio").innerText = formatDateFull(obra.ObraFechaInicio);
+      document.getElementById("fieldObraFechaFin").innerText = formatDateFull(obra.ObraFechaFin);
+
+      // 7. Renderizar Gráfico Radial de Avance Físico
+      renderRadialProgressChart(progressPercent);
+
+      // 8. Rellenar Datos de la Ficha Técnica de Control
+      if (ficha) {
+        document.getElementById("fichaLabelID").innerText = ficha.FichaID;
+        document.getElementById("fichaLabelPeriodo").innerText = `${formatDate(ficha.FichaFechaDesde)} al ${formatDate(ficha.FichaFechaHasta)}`;
+        document.getElementById("fichaLabelFecha").innerText = formatDate(ficha.FichaFecha);
+        document.getElementById("fichaObservaciones").innerText = ficha.FichaObservaciones || "Sin observaciones registradas.";
+
+        // Renderizar Lista de Actividades como Checklist
+        const activitiesContainer = document.getElementById("activitiesList");
+        activitiesContainer.innerHTML = "";
+        
+        if (ficha.FichaActividadesEjecutadas) {
+          const acts = ficha.FichaActividadesEjecutadas.split("\n").filter(a => a.trim() !== "");
+          acts.forEach(actText => {
+            const li = document.createElement("li");
+            li.className = "activity-item";
+            li.innerHTML = `
+              <div class="activity-checkbox">
+                <i data-lucide="check-square" style="width: 18px; height: 18px;"></i>
+              </div>
+              <span class="activity-text">${escapeHtml(actText)}</span>
+            `;
+            activitiesContainer.appendChild(li);
+          });
+        } else {
+          activitiesContainer.innerHTML = `<li style="font-size: 0.9rem; color: var(--text-muted)">No hay actividades registradas en esta ficha.</li>`;
+        }
+      }
+
+      // 9. Rellenar Carrusel Fotográfico
+      renderCarousel(ficha ? ficha.FichaID : null);
+
+      // 10. Inicializar/Actualizar Mapa Geográfico
+      initMap(obra);
+
+      // 11. Rellenar Datos de Contratista y Equipo de Ingenieros
+      // Buscar contratista
+      const empresa = dashboardData.empresas.find(e => e.EmpresaID === obra.EmpresaID) || dashboardData.empresas[0];
+      if (empresa) {
+        document.getElementById("fieldEmpresaNombre").innerText = empresa.EmpresaNombre;
+        document.getElementById("fieldEmpresaID").innerText = `ID Contratista: ${empresa.EmpresaID}`;
+      }
+
+      // Buscar Ingenieros
+      const residente = dashboardData.ingenieros.find(i => i.IngenieroNombre.toUpperCase() === obra.ObraResidente.toUpperCase()) || {
+        IngenieroNombre: obra.ObraResidente,
+        IngenieroCargo: "RESIDENTE",
+        IngenieroTelefono: "No indicado"
+      };
+      const inspector = dashboardData.ingenieros.find(i => i.IngenieroNombre.toUpperCase() === obra.ObraInspector.toUpperCase()) || {
+        IngenieroNombre: obra.ObraInspector,
+        IngenieroCargo: "INSPECTORA",
+        IngenieroTelefono: "No indicado"
+      };
+
+      document.getElementById("residenteName").innerText = residente.IngenieroNombre;
+      document.getElementById("residentePhone").innerText = residente.IngenieroTelefono || "Sin teléfono registrado";
+
+      document.getElementById("inspectorName").innerText = inspector.IngenieroNombre;
+      document.getElementById("inspectorPhone").innerText = inspector.IngenieroTelefono || "Sin teléfono registrado";
+
+      // Re-inicializar iconos para soportar nuevos dinámicos
+      lucide.createIcons();
+    }
+
+    // Inicializar Mapa con MapLibre GL JS
+    function initMap(obra) {
+      // Coordenadas aproximadas para Kempis, Zamora, Miranda
+      // Si la obra no tiene coordenadas registradas, usamos las coordenadas de Kempis
+      let lng = -66.4060;
+      let lat = 10.3950;
+
+      if (obra.ObraCoordenada && obra.ObraCoordenada.includes(",")) {
+        const parts = obra.ObraCoordenada.split(",");
+        const parsedLat = parseFloat(parts[0]);
+        const parsedLng = parseFloat(parts[1]);
+        if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+          lat = parsedLat;
+          lng = parsedLng;
+        }
+      }
+
+      // Destruir mapa anterior si existía para evitar leaks
+      if (mapInstance) {
+        mapInstance.remove();
+        mapInstance = null;
+      }
 
       try {
         mapInstance = new maplibregl.Map({
           container: 'map',
-          style: 'https://tiles.openfreemap.org/styles/positron',
-          center: initialCenter,
-          zoom: 7
+          style: 'https://tiles.openfreemap.org/styles/positron', // Estilo de tiles gratuito
+          center: [lng, lat],
+          zoom: 12,
+          attributionControl: false
         });
 
-        mapInstance.addControl(new maplibregl.NavigationControl());
+        // Controles de navegación
+        mapInstance.addControl(new maplibregl.NavigationControl(), 'top-right');
 
-        mapInstance.on('load', () => {
-          console.log("Mapa cargado con éxito.");
-          renderMapMarkers();
-        });
-
+        // Añadir marcador del proyecto
+        const marker = new maplibregl.Marker({ color: '#1a73e8' })
+          .setLngLat([lng, lat])
+          .setPopup(new maplibregl.Popup({ offset: 25 }).setHTML(`
+            <div style="font-family: 'Inter', sans-serif; padding: 6px;">
+              <h4 style="font-weight: 700; color: #1a73e8; font-size: 0.9rem; margin-bottom: 4px;">Ubicación de la Obra</h4>
+              <p style="font-size: 0.775rem; color: #5f6368; line-height: 1.3;">${obra.ObraNombre.substring(0, 100)}...</p>
+              <div style="margin-top: 6px; font-size: 0.75rem; font-weight: 600; color: #34a853;">Estatus: ${obra.ObraEstatus}</div>
+            </div>
+          `))
+          .addTo(mapInstance);
       } catch (err) {
         console.error("Error al inicializar el mapa:", err);
       }
     }
 
-    function renderMapAndSidebar() {
-      if (currentTab !== "mapa") return;
-      
-      initMaplibreMap();
-      renderMapMarkers();
-      renderMapSidebar();
-    }
-
-    function renderMapMarkers() {
-      if (typeof maplibregl === 'undefined' || !mapInstance) return;
-
-      mapMarkers.forEach(m => m.remove());
-      mapMarkers = [];
-
-      const coordinatesToFit = [];
-
-      filteredData.forEach(item => {
-        if (item.coordsParsed) {
-          const { lat, lng } = item.coordsParsed;
-
-          const popupHTML = `
-            <div class="popup-content">
-              <span class="badge badge-${item.severityInfo.class}" style="margin-bottom:8px;">${item.severityInfo.label}</span>
-              <h4>${item["DESCRIPCION"]}</h4>
-              <p><strong>Tipo:</strong> ${item["TIPO DE OBRA"]}</p>
-              <p><strong>Vía:</strong> ${item["VIA"]}</p>
-              <p style="margin-top:4px;"><strong>Situación:</strong> ${item["SITUACION ACTUAL"].substring(0, 100)}...</p>
-            </div>
-          `;
-
-          const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupHTML);
-
-          const marker = new maplibregl.Marker({ color: item.severityInfo.color })
-            .setLngLat([lng, lat])
-            .setPopup(popup)
-            .addTo(mapInstance);
-
-          mapMarkers.push(marker);
-          coordinatesToFit.push([lng, lat]);
-        }
-      });
-
-      if (coordinatesToFit.length > 0 && mapInstance) {
-        const bounds = new maplibregl.LngLatBounds();
-        coordinatesToFit.forEach(coord => bounds.extend(coord));
-        
-        mapInstance.fitBounds(bounds, {
-          padding: 60,
-          maxZoom: 14
-        });
-      }
-    }
-
-    // Renderizar barra lateral del mapa
-    function renderMapSidebar() {
-      const sidebarList = document.getElementById("mapSidebarList");
-      if (!sidebarList) return;
-      
-      sidebarList.innerHTML = "";
-
-      const mappedItems = filteredData.filter(item => item.coordsParsed !== null);
-
-      if (mappedItems.length === 0) {
-        sidebarList.innerHTML = `
-          <div style="padding:20px;text-align:center;color:var(--text-secondary);font-size:13px;">
-            No hay registros con coordenadas válidas para mostrar en esta zona.
-          </div>
-        `;
-        return;
-      }
-
-      mappedItems.forEach(item => {
-        const li = document.createElement("div");
-        li.className = "map-list-item";
-        
-        li.innerHTML = `
-          <h5>${item["DESCRIPCION"]}</h5>
-          <p><strong>Vía:</strong> ${item["VIA"] || "-"}</p>
-          <div class="badge-row">
-            <span class="badge badge-${item.severityInfo.class}">${item.severityInfo.label}</span>
-            <span class="badge badge-normal">${item["ESTADO"]}</span>
-          </div>
-        `;
-
-        li.addEventListener("click", () => {
-          document.querySelectorAll(".map-list-item").forEach(el => el.classList.remove("active"));
-          li.classList.add("active");
-
-          if (mapInstance && item.coordsParsed) {
-            const { lat, lng } = item.coordsParsed;
-            mapInstance.flyTo({
-              center: [lng, lat],
-              zoom: 14,
-              speed: 1.5,
-              curve: 1
-            });
+    // Renderizar gráfico Radial de ApexCharts
+    function renderRadialProgressChart(progressPercent) {
+      const options = {
+        series: [progressPercent],
+        chart: {
+          height: 280,
+          type: 'radialBar',
+        },
+        plotOptions: {
+          radialBar: {
+            hollow: {
+              size: '62%',
+            },
+            dataLabels: {
+              name: {
+                show: true,
+                fontSize: '14px',
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 600,
+                color: 'var(--text-muted)',
+                offsetY: -10
+              },
+              value: {
+                show: true,
+                fontSize: '32px',
+                fontFamily: 'Inter, sans-serif',
+                fontWeight: 800,
+                color: 'var(--text-main)',
+                offsetY: 8,
+                formatter: function (val) {
+                  return val + "%"
+                }
+              }
+            }
           }
-        });
+        },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shade: 'dark',
+            type: 'horizontal',
+            shadeIntensity: 0.5,
+            gradientToColors: ['#34a853'],
+            inverseColors: true,
+            opacityFrom: 1,
+            opacityTo: 1,
+            stops: [0, 100]
+          }
+        },
+        colors: ['#1a73e8'],
+        labels: ['Avance Físico'],
+      };
 
-        sidebarList.appendChild(li);
-      });
+      if (radialChartInstance) {
+        radialChartInstance.destroy();
+      }
+
+      radialChartInstance = new ApexCharts(document.querySelector("#radialProgressChart"), options);
+      radialChartInstance.render();
     }
 
-    // Renderizar Diagnósticos y Daños
-    function renderDiagnosticsGrid() {
-      if (currentTab !== "diagnosticos") return;
+    // Renderizar carrusel fotográfico de Fichas
+    function renderCarousel(fichaID) {
+      const slidesContainer = document.getElementById("carouselSlidesContainer");
+      slidesContainer.innerHTML = "";
 
-      const grid = document.getElementById("diagnosticsGrid");
-      if (!grid) return;
-      
-      grid.innerHTML = "";
+      // Filtrar fotos que pertenecen a esta ficha
+      const fotosFicha = dashboardData.fotos.filter(f => f.FichaID === fichaID);
 
-      if (filteredData.length === 0) {
-        grid.innerHTML = `
-          <div class="card-panel full-width" style="text-align:center;padding:40px;color:var(--text-secondary);">
-            <i data-lucide="info" style="width:48px;height:48px;margin:0 auto 12px;color:var(--accent-color);"></i>
-            <h4>No se encontraron diagnósticos que coincidan con la búsqueda</h4>
-          </div>
-        `;
-        safeCreateIcons();
-        return;
-      }
-
-      filteredData.forEach(item => {
-        const card = document.createElement("div");
-        card.className = `diagnostic-card severity-${item.severityInfo.class}`;
-
-        card.innerHTML = `
-          <div class="diagnostic-card-header">
-            <h4>${item["DESCRIPCION"]}</h4>
-            <span class="badge badge-${item.severityInfo.class}">${item.severityInfo.label}</span>
-          </div>
-          <p style="font-size:11px;color:var(--accent-color);font-weight:600;margin-top:-4px;">
-            <i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:2px;"></i>
-            ${item["ESTADO"]} / ${item["MUNICIPIO"]} / ${item["VIA"]}
-          </p>
-          <div style="margin-top:6px;">
-            <p style="font-weight:600;color:var(--text-primary);margin-bottom:2px;">SITUACIÓN ACTUAL / DAÑO:</p>
-            <p style="font-style:italic;">"${item["SITUACION ACTUAL"] || 'Sin descripción de fallas.'}"</p>
-          </div>
-          <div class="diagnostic-actions-box">
-            <div class="diagnostic-actions-title">Acciones Correctivas Propuestas</div>
-            <div class="diagnostic-actions-content">${item["ACCIONES"] ? item["ACCIONES"].replace(/\n/g, '<br>') : 'Pendiente de evaluación técnica.'}</div>
-          </div>
-        `;
-
-        grid.appendChild(card);
-      });
-
-      safeCreateIcons();
-    }
-
-    // Renderizar Tabla
-    function renderTable() {
-      if (currentTab !== "tabla") return;
-
-      const tbody = document.getElementById("tableBody");
-      if (!tbody) return;
-      
-      tbody.innerHTML = "";
-
-      const totalItems = filteredData.length;
-      
-      const totalPages = Math.ceil(totalItems / rowsPerPage);
-      if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
-
-      const startIndex = (currentPage - 1) * rowsPerPage;
-      const endIndex = Math.min(startIndex + rowsPerPage, totalItems);
-
-      const btnPrev = document.getElementById("btnPrevPage");
-      if (btnPrev) btnPrev.disabled = currentPage === 1;
-      
-      const btnNext = document.getElementById("btnNextPage");
-      if (btnNext) btnNext.disabled = currentPage === totalPages || totalPages === 0;
-
-      const paginationInfo = document.getElementById("paginationInfo");
-      if (paginationInfo) {
-        paginationInfo.textContent = 
-          totalItems > 0 
-            ? `Mostrando ${startIndex + 1}-${endIndex} de ${totalItems} registros` 
-            : "Mostrando 0-0 de 0 registros";
-      }
-
-      const pageData = filteredData.slice(startIndex, endIndex);
-
-      if (pageData.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="7" style="text-align:center;color:var(--text-secondary);padding:30px;">
-              No se encontraron inspecciones
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      pageData.forEach(item => {
-        const tr = document.createElement("tr");
-
-        let progressWidth = 33;
-        let progressColor = "var(--success-color)";
-        if (item.severityInfo.class === "moderado") {
-          progressWidth = 66;
-          progressColor = "var(--warning-color)";
-        } else if (item.severityInfo.class === "critico") {
-          progressWidth = 100;
-          progressColor = "var(--danger-color)";
-        }
-
-        tr.innerHTML = `
-          <td style="font-weight:600;">${item["N°"]}</td>
-          <td style="font-weight:600;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item["DESCRIPCION"]}">${item["DESCRIPCION"]}</td>
-          <td>${item["TIPO DE OBRA"]}</td>
-          <td><span class="badge badge-normal">${item["ESTADO"]}</span></td>
-          <td>${item["MUNICIPIO"]}</td>
-          <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item["VIA"]}">${item["VIA"]}</td>
-          <td>
-            <div class="progress-cell-wrapper">
-              <div class="progress-bar-bg">
-                <div class="progress-bar-fill" style="width:${progressWidth}%;background-color:${progressColor};"></div>
-              </div>
-              <span class="badge badge-${item.severityInfo.class}">${item.severityInfo.label}</span>
+      if (fotosFicha.length === 0) {
+        slidesContainer.innerHTML = `
+          <div class="image-fallback">
+            <div class="image-fallback-icon">
+              <i data-lucide="image-off"></i>
             </div>
-          </td>
+            <span class="image-fallback-title">Sin registro fotográfico</span>
+            <span class="image-fallback-desc">No se encontraron registros de fotos para esta ficha técnica.</span>
+          </div>
         `;
+        // Esconder controles
+        document.querySelectorAll(".carousel-control").forEach(btn => btn.style.display = "none");
+        lucide.createIcons();
+        return;
+      }
 
-        tbody.appendChild(tr);
+      // Mostrar controles si hay más de 1 imagen
+      document.querySelectorAll(".carousel-control").forEach(btn => {
+        btn.style.display = fotosFicha.length > 1 ? "flex" : "none";
+      });
+
+      activeCarouselIndex = 0;
+
+      fotosFicha.forEach((foto, index) => {
+        const slide = document.createElement("div");
+        slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
+        slide.id = `slide-${index}`;
+        
+        slide.innerHTML = `
+          <img src="${foto.FotoImagen}" class="carousel-image" alt="Registro fotográfico ${foto.FotoID}" onerror="handleImageLoadError(this, '${escapeHtml(foto.FotoImagen)}', '${foto.FotoID}')">
+          <div class="carousel-info">
+            <span class="carousel-caption">ID Foto: ${foto.FotoID}</span>
+            <span class="carousel-counter">${index + 1} de ${fotosFicha.length}</span>
+          </div>
+        `;
+        
+        slidesContainer.appendChild(slide);
       });
     }
 
-    // Exportación a CSV
-    function exportToCSV() {
-      if (filteredData.length === 0) return;
+    // Deslizar carrusel
+    function slideCarousel(direction) {
+      const slides = document.querySelectorAll(".carousel-slide");
+      if (slides.length <= 1) return;
 
-      const headers = ["N°", "DESCRIPCION", "TIPO DE OBRA", "ESTADO", "MUNICIPIO", "PARROQUIA", "VIA", "COORDENADA", "SITUACION ACTUAL", "ACCIONES", "SEVERIDAD"];
-      const csvRows = [];
-      csvRows.push(headers.join(","));
+      slides[activeCarouselIndex].classList.remove("active");
+      
+      activeCarouselIndex += direction;
+      if (activeCarouselIndex >= slides.length) {
+        activeCarouselIndex = 0;
+      } else if (activeCarouselIndex < 0) {
+        activeCarouselIndex = slides.length - 1;
+      }
 
-      filteredData.forEach(item => {
-        const values = [
-          item["N°"],
-          escapeCSV(item["DESCRIPCION"]),
-          escapeCSV(item["TIPO DE OBRA"]),
-          escapeCSV(item["ESTADO"]),
-          escapeCSV(item["MUNICIPIO"]),
-          escapeCSV(item["PARROQUIA"]),
-          escapeCSV(item["VIA"]),
-          escapeCSV(item["COORDENADA"]),
-          escapeCSV(item["SITUACION ACTUAL"]),
-          escapeCSV(item["ACCIONES"]),
-          item.severityInfo.label
-        ];
-        csvRows.push(values.join(","));
-      });
-
-      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + csvRows.join("\n");
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `reporte_inspecciones_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      slides[activeCarouselIndex].classList.add("active");
     }
 
-    function escapeCSV(text) {
-      if (!text) return '""';
-      let clean = String(text).replace(/"/g, '""').replace(/[\r\n]+/g, ' ');
-      return `"${clean}"`;
+    // Gestionar error de carga de imagen local (fallback premium)
+    function handleImageLoadError(imgElement, originalPath, fotoId) {
+      const parent = imgElement.parentElement;
+      if (!parent) return;
+
+      // Reemplazar el HTML del slide por el fallback estructurado
+      parent.innerHTML = `
+        <div class="image-fallback">
+          <div class="image-fallback-icon">
+            <i data-lucide="image"></i>
+          </div>
+          <span class="image-fallback-title">Fotografía Local</span>
+          <span class="image-fallback-desc">La imagen está configurada para cargarse desde la ruta local:</span>
+          <span class="image-fallback-path">${originalPath}</span>
+          <span class="carousel-counter" style="position: absolute; bottom: 16px; right: 16px; background-color: rgba(0,0,0,0.6); color: white;">ID: ${fotoId}</span>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // Auxiliares para fechas
+    function formatDate(dateStr) {
+      if (!dateStr) return "-";
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      
+      const day = String(date.getUTCDate()).padStart(2, '0');
+      const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+      const month = months[date.getUTCMonth()];
+      const year = date.getUTCFullYear();
+      return `${day}-${month}-${year}`;
+    }
+
+    // Convertir ISO string a formato legible
+    function formatDateFull(dateStr) {
+      if (!dateStr) return "-";
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+
+      const day = date.getUTCDate();
+      const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      const month = months[date.getUTCMonth()];
+      const year = date.getUTCFullYear();
+      return `${day} de ${month} de ${year}`;
+    }
+
+    // Guardar opciones de API en localStorage
+    function saveApiSettings(event) {
+      event.preventDefault();
+      
+      const inputUrl = document.getElementById("apiUrlInput").value.trim();
+      const inputKey = document.getElementById("apiKeyInput").value.trim();
+
+      localStorage.setItem("ORTEGON_API_URL", inputUrl);
+      localStorage.setItem("ORTEGON_API_KEY", inputKey);
+
+      apiURL = inputUrl;
+      apiKey = inputKey;
+
+      alert("Configuración de API guardada con éxito. Conectando con los nuevos parámetros...");
+      
+      switchView('overview');
+      syncData();
+    }
+
+    // Restaurar opciones por defecto
+    function restoreDefaultApiSettings() {
+      if (confirm("¿Estás seguro de restaurar las credenciales por defecto?")) {
+        localStorage.removeItem("ORTEGON_API_URL");
+        localStorage.removeItem("ORTEGON_API_KEY");
+
+        apiURL = DEFAULT_API_URL;
+        apiKey = DEFAULT_API_KEY;
+
+        document.getElementById("apiUrlInput").value = apiURL;
+        document.getElementById("apiKeyInput").value = apiKey;
+
+        alert("Credenciales por defecto restauradas. Conectando...");
+        
+        switchView('overview');
+        syncData();
+      }
+    }
+
+    // Gestionar visualización de carga
+    function showLoading(show, text = "Cargando...") {
+      const loader = document.getElementById("loadingScreen");
+      const loaderText = document.getElementById("loadingText");
+      if (loaderText) loaderText.innerText = text;
+      
+      if (show) {
+        loader.style.display = "flex";
+        loader.style.opacity = "1";
+      } else {
+        loader.style.opacity = "0";
+        setTimeout(() => {
+          loader.style.display = "none";
+        }, 300);
+      }
+    }
+
+    // Mostrar/ocultar panel de errores
+    function showApiError(message) {
+      const alertBox = document.getElementById("apiErrorAlert");
+      const errorBody = document.getElementById("apiErrorBody");
+      errorBody.innerText = message;
+      alertBox.style.display = "flex";
+      
+      // Subir scroll para que el usuario lo note
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function hideApiError() {
+      document.getElementById("apiErrorAlert").style.display = "none";
+    }
+
+    // Escape de HTML para evitar XSS
+    function escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
   </script>
 </body>
